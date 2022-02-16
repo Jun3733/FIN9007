@@ -9,31 +9,85 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+### load packages
+```{r Lib&Env, message=FALSE}
+library(moments)
+library(tseries)
+library(bizdays)
 ```
 
-## Including Plots
+### read the raw data of underlying
 
-You can also embed plots, for example:
+```{r data1Udlying }
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
+# get sample size
+N<-length(underlying$SPX)
+# convert Date format to Rformat
+underlying$TradeDate=as.Date(underlying$TradeDate, format = "%Y-%m-%d")
+View(underlying)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### calculate simple and log returns of SPX
+
+```{r returns}
+
+underlying$retSPX=c(NA,underlying$SPX[2:N]/underlying$SPX[1:N-1]-1)
+underlying$logRetSPX=c(NA,log(underlying$SPX[2:N]/underlying$SPX[1:N-1]))
+underlying$retSPY=c(NA,underlying$SPY[2:N]/underlying$SPY[1:N-1]-1)
+underlying$logRetSPY=c(NA,log(underlying$SPY[2:N]/underlying$SPY[1:N-1]))
+underlying=na.omit(underlying)                   
+
+```
+
+### sub sample the raw sample with WITH function and time period
+
+```{r SubSample}
+B.dates <- "2010-01-01"
+E.dates <- "2020-12-31"
+
+selectedSample=with(underlying, underlying[(underlying$TradeDate >= B.dates & underlying$TradeDate <= E.dates), ])
+
+```
+
+plot sth out but idk for now
+
+```{r plot sth}
+plot(selectedSample$TradeDate,selectedSample$SPX,col="red", type="l")
+lines(selectedSample$TradeDate,selectedSample$SPY*10,col="green")
+
+selectedSample$diff=selectedSample$SPX-selectedSample$SPY*10
+plot(selectedSample$TradeDate,selectedSample$diff,col="red", type="l")
+
+selectedSample$diffP=(selectedSample$SPX/(selectedSample$SPY*10))-1
+plot(selectedSample$TradeDate,selectedSample$diffP,col="red", type="l")
+
+```
+
+### density of SPX returns
+
+```{r}
+hist(selectedSample$logRetSPX, breaks = 100)
+d <- density(selectedSample$logRetSPX)
+d
+plot(d)
+
+```
 
 
+### calculate first four moments
 
-```{r Lib&Env}
+```{r sum statistic}
 
-
-
+mean(selectedSample$logRetSPX)*252
+var(selectedSample$logRetSPX)
+sqrt(var(selectedSample$logRetSPX)*252)
+skewness(selectedSample$logRetSPX)
+kurtosis(selectedSample$logRetSPX)
+```
+```{r Libpsych}
+library(psych)
+describe(selectedSample$logRetSPX)
 ```
 
