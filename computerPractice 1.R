@@ -17,6 +17,7 @@ underlying$TradeDate=as.Date(underlying$TradeDate, format = "%Y-%m-%d")
 
 # calculate simple and log returns of SPX
 underlying$retSPX=c(NA,underlying$SPX[2:N]/underlying$SPX[1:N-1]-1)
+underlying$logretSPX2=c(NA,diff(log(underlying$SPX)))
 underlying$logRetSPX=c(NA,log(underlying$SPX[2:N]/underlying$SPX[1:N-1]))
 underlying$retSPY=c(NA,underlying$SPY[2:N]/underlying$SPY[1:N-1]-1)
 underlying$logRetSPY=c(NA,log(underlying$SPY[2:N]/underlying$SPY[1:N-1]))
