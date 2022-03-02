@@ -1,0 +1,113 @@
+---
+title: "Project Draft"
+author: "lbian01"
+date: "02/03/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#load lib
+
+```{r lib, include=FALSE}
+library(tidyverse)
+library(tidyquant)
+library(moments)
+library(tseries)
+library(bizdays)
+```
+
+## Ass 1.1
+
+#### *Present and comment on the summary statistics of S&P 500 index, SDPR ETF, S&P 500 E-mini futures, SPX options, and SPY options. (5%)*
+
+```{r 1.1 ReadData}
+
+underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
+
+underlying$TradeDate=as.Date(underlying$TradeDate, format = "%Y-%m-%d")
+
+N <- length(underlying$SPX)
+
+```
+
+```{r 1.1 Return Calcu}
+underlying <- underlying %>% 
+  mutate(retSPX=c(NA,SPX[2:N]/SPX[1:N-1]-1),
+         retSPY=c(NA,SPY[2:N]/SPY[1:N-1]-1),
+         logRetSPX=c(NA,diff(log(SPX))),
+         logRetSPY=c(NA,diff(log(SPY))),
+         ) %>% 
+  na.omit()
+
+```
+
+```{r 1.1 set Dates }
+# Set the begin date and end date 
+B.dates <- "2010-01-01"
+E.dates <- "2020-12-31"
+
+```
+
+```{r 1.1 filter with set Dates}
+selectedSample <- filter(underlying,TradeDate>=B.dates&TradeDate<=E.dates )
+  
+```
+
+```{r 1.1 plot SPX}
+selectedSample %>% 
+  ggplot(aes(x=TradeDate,y=SPX))+
+  geom_line(colour="#ff0000")
+
+```
+```{r 1.1 plot spx-spy10}
+selectedSample <- selectedSample %>% 
+  mutate(diff=SPX-SPY*10) 
+
+selectedSample %>%
+  ggplot(aes(x=TradeDate,y=diff))+
+  geom_line(colour="#ff0000")
+```
+
+```{r 1.1 plot diffP}
+selectedSample <-  selectedSample %>% 
+  mutate(diffP=(SPX/SPY*10)-1) 
+selectedSample %>%
+  ggplot(aes(x=TradeDate,y=diffP))+
+  geom_line(colour="#ff0000")
+```
+```{r 1.1 hist plot}
+hist(selectedSample$logRetSPX, breaks = 100)
+d <- density(selectedSample$logRetSPX)
+d
+plot(d)
+```
+```{r}
+mean(selectedSample$logRetSPX)*252
+var(selectedSample$logRetSPX)
+sqrt(var(selectedSample$logRetSPX)*252)
+skewness(selectedSample$logRetSPX)
+kurtosis(selectedSample$logRetSPX)
+
+# normality test
+jarque.bera.test(selectedSample$logRetSPX)
+```
+
+```{r}
+# compare empirical density and a normal distribution with the same mean and variance
+xAxis=seq(-0.15,0.1,by=0.0001)
+plot(d,xlim = c(-0.05,0.05))
+lines(xAxis,dnorm(xAxis, mean(selectedSample$logRetSPX), sqrt(var(selectedSample$logRetSPX))),col="green")
+```
+
+
+```{r}
+# normality test
+jarque.bera.test(selectedSample$logRetSPX)
+```
+
