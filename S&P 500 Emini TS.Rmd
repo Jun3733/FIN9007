@@ -22,9 +22,6 @@ library(bizdays)
 
 ###################################################################
 # read the S&P 500 Emini time series data 
-spEminiTS=read.csv("./sampleData/spxEminiEx20200619.csv", header=T,as.is = T,check.names=FALSE)
-spEminiTS$TradeDate=as.Date(spEminiTS$TradeDate, format = "%d/%m/%Y")
-
 
 ```{r ReadData}
 spEminiTS=read.csv("./sampleData/spxEminiEx20200619.csv", header=T,as.is = T,check.names=FALSE)
