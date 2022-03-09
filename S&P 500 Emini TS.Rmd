@@ -37,18 +37,33 @@ spEminiTS$TradeDate <-
 
 
 
-# basis 
-spEminiTS=merge(x=spEminiTS,y=underlying[c('TradeDate','SPX')],by="TradeDate",all.x=TRUE)
-
-spEminiTS$Basis=spEminiTS$`19/06/2020`-spEminiTS$SPX
-spEminiTS$BasisP=spEminiTS$SPX/spEminiTS$`19/06/2020`-1
-
-plot(spEminiTS$TradeDate,spEminiTS$Basis, type="l")
-plot(spEminiTS$TradeDate,spEminiTS$BasisP, type="l")
-
-
 
 
 ```{r}
+#merge SPX to TS by Date
+spEminiTS=merge(x=spEminiTS,y=underlying[c('TradeDate','SPX')],by="TradeDate",all.x=TRUE)
 
 ```
+
+
+```{r mutate new Basis cols}
+spEminiTS <- 
+  spEminiTS %>% 
+  mutate(Basis=spEminiTS$`19/06/2020`-SPX,
+         BasisP=SPX/spEminiTS$`19/06/2020`-1)
+
+```
+
+
+```{r plot}
+spEminiTS %>% 
+  ggplot(aes(x=TradeDate,y=Basis))+
+  geom_line(colour="#ff0000")
+
+spEminiTS %>% 
+  ggplot(aes(x=TradeDate,y=BasisP))+
+  geom_line()
+
+
+```
+# line 96
