@@ -1,0 +1,54 @@
+---
+title: "Untitled"
+author: "lbian01"
+date: "09/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load lib
+
+```{r lib, include=FALSE}
+library(tidyverse)
+library(tidyquant)
+library(moments)
+library(tseries)
+library(bizdays)
+```
+
+
+###################################################################
+# read the S&P 500 Emini time series data 
+spEminiTS=read.csv("./sampleData/spxEminiEx20200619.csv", header=T,as.is = T,check.names=FALSE)
+spEminiTS$TradeDate=as.Date(spEminiTS$TradeDate, format = "%d/%m/%Y")
+
+
+```{r ReadData}
+spEminiTS=read.csv("./sampleData/spxEminiEx20200619.csv", header=T,as.is = T,check.names=FALSE)
+
+spEminiTS$TradeDate <-
+  spEminiTS$TradeDate %>% 
+  as.Date("%d/%m/%Y")
+
+```
+
+
+
+# basis 
+spEminiTS=merge(x=spEminiTS,y=underlying[c('TradeDate','SPX')],by="TradeDate",all.x=TRUE)
+
+spEminiTS$Basis=spEminiTS$`19/06/2020`-spEminiTS$SPX
+spEminiTS$BasisP=spEminiTS$SPX/spEminiTS$`19/06/2020`-1
+
+plot(spEminiTS$TradeDate,spEminiTS$Basis, type="l")
+plot(spEminiTS$TradeDate,spEminiTS$BasisP, type="l")
+
+
+
+
+```{r}
+
+```

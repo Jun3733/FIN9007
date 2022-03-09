@@ -30,7 +30,9 @@ library(bizdays)
 
 underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
 
-underlying$TradeDate=as.Date(underlying$TradeDate, format = "%Y-%m-%d")
+underlying$TradeDate <- 
+  underlying$TradeDate %>%
+  as.Date("%Y-%m-%d")
 
 N <- length(underlying$SPX)
 
@@ -107,7 +109,9 @@ lines(xAxis,dnorm(xAxis, mean(selectedSample$logRetSPX), sqrt(var(selectedSample
 
 
 ```{r}
+
+
 # normality test
 jarque.bera.test(selectedSample$logRetSPX)
 ```
-
+#### line 65
