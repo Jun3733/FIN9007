@@ -73,12 +73,6 @@ ttm=bizdays(oneExpiryOptionData$TradeDate[1],
 
 
 
-callOptionData=oneExpiryOptionData[oneExpiryOptionData$c_p==1,]
-callOptionData=callOptionData[order(callOptionData$strike),]
-putOptionData=oneExpiryOptionData[oneExpiryOptionData$c_p==0,]
-putOptionData=putOptionData[order(putOptionData$strike),]
-
-
 ```{r cal&Sort Data}
 
 callOptionData <- filter(oneExpiryOptionData,c_p==1)
@@ -94,15 +88,32 @@ putOptionData <- putOptionData %>%
 ```
 
 
-group <- ifelse(oneExpiryOptionData$c_p==1, "Call options", "Put options")
-plot(oneExpiryOptionData$strike,oneExpiryOptionData$price,pch = 19,col = factor(group), cex = 0.5)
 
+```{r group&Plot}
+
+group <- ifelse(oneExpiryOptionData$c_p==1, "Call options", "Put options")
+
+oneExpiryOptionData %>% 
+  ggplot(aes(x=strike,y=price,color=group))+
+  geom_point()
+
+```
 
 
 # pair call and put
-pairedOptions=data.frame(strike=sort(unique(oneExpiryOptionData$strike))) 
 
-pairedOptions=merge(x=pairedOptions,y=callOptionData[,c('strike','price')],by="strike",all.x=TRUE)
+```{r pair}
+
+pairedOptions <- 
+  oneExpiryOptionData %>% 
+  distinct(strike) %>% 
+  arrange(strike) %>% 
+  data.frame() %>%
+  left_join(callOptionData[,c('strike','price')],by="strike")# merge by strike
+
+```
+
+
 colnames(pairedOptions)[colnames(pairedOptions)=='price'] <- "callPrice"
 pairedOptions=merge(x=pairedOptions,y=putOptionData[,c('strike','price')],by="strike",all.x=TRUE)
 colnames(pairedOptions)[colnames(pairedOptions)=='price'] <- "putPrice"
