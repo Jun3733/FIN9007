@@ -78,8 +78,25 @@ callOptionData=callOptionData[order(callOptionData$strike),]
 putOptionData=oneExpiryOptionData[oneExpiryOptionData$c_p==0,]
 putOptionData=putOptionData[order(putOptionData$strike),]
 
+
+```{r cal&Sort Data}
+
+callOptionData <- filter(oneExpiryOptionData,c_p==1)
+
+CallOptionData <- CallOptionData %>% 
+  arrange(strike)
+#Put Option
+putOptionData <- filter(oneExpiryOptionData,c_p==0)
+
+putOptionData <- putOptionData %>% 
+  arrange(strike)
+
+```
+
+
 group <- ifelse(oneExpiryOptionData$c_p==1, "Call options", "Put options")
 plot(oneExpiryOptionData$strike,oneExpiryOptionData$price,pch = 19,col = factor(group), cex = 0.5)
+
 
 
 # pair call and put
