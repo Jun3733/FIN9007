@@ -13,10 +13,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r lib, include=FALSE}
 library(tidyverse)
-library(tidyquant)
 library(moments)
 library(tseries)
 library(bizdays)
+library(magrittr)
 ```
 
 #################################################################
@@ -74,11 +74,12 @@ ttm=bizdays(oneExpiryOptionData$TradeDate[1],
 
 
 ```{r cal&Sort Data}
-
+#Call Option
 callOptionData <- filter(oneExpiryOptionData,c_p==1)
 
-CallOptionData <- CallOptionData %>% 
+callOptionData <- callOptionData %>% 
   arrange(strike)
+
 #Put Option
 putOptionData <- filter(oneExpiryOptionData,c_p==0)
 
@@ -114,22 +115,59 @@ pairedOptions <-
 ```
 
 
-colnames(pairedOptions)[colnames(pairedOptions)=='price'] <- "callPrice"
-pairedOptions=merge(x=pairedOptions,y=putOptionData[,c('strike','price')],by="strike",all.x=TRUE)
-colnames(pairedOptions)[colnames(pairedOptions)=='price'] <- "putPrice"
+```{r rename&merge}
 
-pairedOptions$impliedSPX_Pseudo=pairedOptions$callPrice+pairedOptions$strike-pairedOptions$putPrice
-plot(pairedOptions$strike,pairedOptions$impliedSPX_Pseudo)
+pairedOptions <-
+  pairedOptions %>% 
+  rename(callPrice=price) %>% 
+  left_join(putOptionData[,c('strike','price')],by="strike") %>% 
+  rename(putPrice=price)
+
+```
+
+
+```{r implied&Plot}
+
+pairedOptions %<>% 
+  mutate(impliedSPX_Pseudo=callPrice+strike-putPrice)
+#plot
+ggplot(pairedOptions,aes(x=strike,y=impliedSPX_Pseudo))+
+  geom_point(shape = 1)
+
+```
 
 # implied futures, interest rate
-sampleImpliedR=data.frame(strike=pairedOptions$strike,x=(pairedOptions$putPrice-pairedOptions$callPrice))
+
+```{r sample & regress}
+
+sampleImpliedR <- 
+  pairedOptions %>% 
+  mutate(x=putPrice-callPrice) %>% 
+  select(strike,x) %>% 
+  data.frame()
+
+#line regress
 resIR=lm(strike ~ x, data = sampleImpliedR)
+
 impliedSPXF=resIR$coefficients[1]
+
 impliedR=log(resIR$coefficients[2])/ttm
 
+```
 
-pairedOptions$impliedSPXF=pairedOptions$callPrice*exp(impliedR*ttm)+pairedOptions$strike-pairedOptions$putPrice*exp(impliedR*ttm)
-plot(pairedOptions$strike,pairedOptions$impliedSPXF)
+
+
+```{r impliedSPXF&plot}
+
+pairedOptions <- pairedOptions %>% 
+  mutate(impliedSPXF=(callPrice-putPrice)*exp(impliedR*ttm)+strike)
+#
+ggplot(pairedOptions,aes(x=strike,y=impliedSPXF))+
+  geom_point()
+
+
+```
+
 
 # get the corresponding index level
 underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
