@@ -12,8 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # load lib
 
 ```{r lib, include=FALSE}
+
 library(tidyverse)
-library(tidyquant)
 library(moments)
 library(tseries)
 library(bizdays)
@@ -26,8 +26,7 @@ library(bizdays)
 ```{r ReadData}
 spEminiTS=read.csv("./sampleData/spxEminiEx20200619.csv", header=T,as.is = T,check.names=FALSE)
 
-spEminiTS$TradeDate <-
-  spEminiTS$TradeDate %>% 
+spEminiTS$TradeDate %<>% 
   as.Date("%d/%m/%Y")
 
 ```
