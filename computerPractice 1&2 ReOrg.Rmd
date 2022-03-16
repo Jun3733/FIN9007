@@ -1,0 +1,460 @@
+---
+title: "Exercise 1&2 ReOrg"
+author: "lbian01"
+date: "16/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#load lib
+
+```{r lib, include=FALSE}
+library(tidyverse)
+library(tidyquant)
+library(moments)
+library(tseries)
+library(bizdays)
+library(magrittr)
+```
+
+## Ass 1.1
+
+#### *Present and comment on the summary statistics of S&P 500 index, SDPR ETF, S&P 500 E-mini futures, SPX options, and SPY options. (5%)*
+
+```{r 1.1 ReaData}
+
+underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
+
+underlying$TradeDate <- 
+  underlying$TradeDate %>%
+  as.Date("%Y-%m-%d")
+
+N <- length(underlying$SPX)
+
+```
+
+```{r 1.1 Return Calcu}
+underlying <- underlying %>% 
+  mutate(retSPX=c(NA,SPX[2:N]/SPX[1:N-1]-1),
+         retSPY=c(NA,SPY[2:N]/SPY[1:N-1]-1),
+         logRetSPX=c(NA,diff(log(SPX))),
+         logRetSPY=c(NA,diff(log(SPY))),
+         ) %>% 
+  na.omit()
+
+```
+
+```{r 1.1 set Dates }
+# Set the begin date and end date 
+B.dates <- "2010-01-01"
+E.dates <- "2020-12-31"
+
+```
+
+```{r 1.1 filter with set Dates}
+selectedSample <- filter(underlying,TradeDate>=B.dates&TradeDate<=E.dates )
+  
+```
+
+```{r 1.1 plot SPX}
+selectedSample %>% 
+  ggplot(aes(x=TradeDate,y=SPX))+
+  geom_line(colour="#ff0000")
+
+```
+```{r 1.1 plot spx-spy10}
+selectedSample <- selectedSample %>% 
+  mutate(diff=SPX-SPY*10) 
+
+selectedSample %>%
+  ggplot(aes(x=TradeDate,y=diff))+
+  geom_line(colour="#ff0000")
+```
+
+```{r 1.1 plot diffP}
+selectedSample <-  selectedSample %>% 
+  mutate(diffP=(SPX/SPY*10)-1) 
+selectedSample %>%
+  ggplot(aes(x=TradeDate,y=diffP))+
+  geom_line(colour="#ff0000")
+```
+```{r 1.1 hist plot}
+hist(selectedSample$logRetSPX, breaks = 100)
+d <- density(selectedSample$logRetSPX)
+d
+plot(d)
+```
+```{r}
+mean(selectedSample$logRetSPX)*252
+var(selectedSample$logRetSPX)
+sqrt(var(selectedSample$logRetSPX)*252)
+skewness(selectedSample$logRetSPX)
+kurtosis(selectedSample$logRetSPX)
+
+# normality test
+jarque.bera.test(selectedSample$logRetSPX)
+```
+
+```{r}
+# compare empirical density and a normal distribution with the same mean and variance
+xAxis=seq(-0.15,0.1,by=0.0001)
+plot(d,xlim = c(-0.05,0.05))
+lines(xAxis,dnorm(xAxis, mean(selectedSample$logRetSPX), sqrt(var(selectedSample$logRetSPX))),col="green")
+```
+
+
+```{r}
+
+
+# normality test
+jarque.bera.test(selectedSample$logRetSPX)
+```
+#### line 65
+
+# read the S&P 500 Emini cross section data on 20200110
+spEminiCross=read.csv("./sampleData/spxEminiTrade20200110.csv", header=T,as.is = T,check.names=FALSE)
+spEminiCross$TradeDate=as.Date(spEminiCross$TradeDate, format = "%d/%m/%Y")
+
+# load lib
+```{r loadData}
+spEminiCross=read.csv("./sampleData/spxEminiTrade20200110.csv", header=T,as.is = T,check.names=FALSE)
+
+spEminiCross$TradeDate <- 
+  spEminiCross$TradeDate %>%
+  as.Date("%d/%m/%Y")
+
+```
+
+
+
+
+```{r}
+spotIndex=underlying[underlying$TradeDate==spEminiCross$TradeDate,'SPX']
+
+deliveryDate=as.Date(colnames(spEminiCross)[2:length(colnames(spEminiCross))], format = "%d/%m/%Y") 
+
+
+```
+
+
+
+```{r cal businessDays}
+# calculate business days
+
+business_calendar <- create.calendar('my_calendar', weekdays = c('saturday','sunday'))
+
+ttm=bizdays(spEminiCross$TradeDate, deliveryDate, cal = business_calendar)/252
+
+
+```
+
+
+```{r CostOfCarry}
+# cost of carry
+log(
+  spEminiCross[,2:length(spEminiCross)]/
+    spotIndex)/
+  ttm
+
+```
+# Line 85
+#### line 65
+
+
+###################################################################
+# read the S&P 500 Emini time series data 
+
+```{r ReadDa}
+spEminiTS=read.csv("./sampleData/spxEminiEx20200619.csv", header=T,as.is = T,check.names=FALSE)
+
+spEminiTS$TradeDate %<>% 
+  as.Date("%d/%m/%Y")
+
+```
+
+
+
+
+
+```{r}
+#merge SPX to TS by Date
+
+spEminiTS=merge(x=spEminiTS,y=underlying[c('TradeDate','SPX')],by="TradeDate",all.x=TRUE)
+
+```
+
+
+```{r mutate new Basis cols}
+spEminiTS <- 
+  spEminiTS %>% 
+  mutate(Basis=spEminiTS$`19/06/2020`-SPX,
+         BasisP=SPX/spEminiTS$`19/06/2020`-1)
+
+```
+
+
+```{r plot}
+spEminiTS %>% 
+  ggplot(aes(x=TradeDate,y=Basis))+
+  geom_line(colour="#ff0000")
+
+spEminiTS %>% 
+  ggplot(aes(x=TradeDate,y=BasisP))+
+  geom_line()
+
+
+```
+# line 96
+#################################################################
+### put call parity 
+#################################################################
+
+```{r }
+
+spxOptionCross=read.csv("./sampleData/spxOptionData20200110.csv", #check.names=FALSE,
+               colClasses=c("numeric","character","character",rep("numeric",3)))
+
+```
+
+```{r TransDate}
+
+spxOptionCross$TradeDate %<>% 
+  as.Date("%Y%m%d")
+
+spxOptionCross$expiryDate %<>% 
+  as.Date("%Y%m%d")
+
+```
+
+
+```{r sort&newData}
+#spxOptionCross %<>%   arrange(expiryDate)
+
+sort(unique(spxOptionCross$expiryDate))
+
+selectedExpiry <- "2020-06-19"#select from sort?
+
+oneExpiryOptionData <- 
+  spxOptionCross %>% 
+  filter(expiryDate==selectedExpiry)
+
+```
+
+
+# calculate business days
+
+```{r calBusiDays}
+
+business_calendar <- 
+  create.calendar('my_calendar', 
+                  weekdays = c('saturday','sunday'))
+
+ttm=bizdays(oneExpiryOptionData$TradeDate[1],
+            oneExpiryOptionData$expiryDate[1], 
+            cal = business_calendar)/252
+
+```
+
+
+
+```{r cal&Sort Data}
+#Call Option
+callOptionData <- filter(oneExpiryOptionData,c_p==1)
+
+callOptionData <- callOptionData %>% 
+  arrange(strike)
+
+#Put Option
+putOptionData <- filter(oneExpiryOptionData,c_p==0)
+
+putOptionData <- putOptionData %>% 
+  arrange(strike)
+
+```
+
+
+
+```{r group&Plot}
+
+group <- ifelse(oneExpiryOptionData$c_p==1, "Call options", "Put options")
+
+oneExpiryOptionData %>% 
+  ggplot(aes(x=strike,y=price,color=group))+
+  geom_point()
+
+```
+
+
+# pair call and put
+
+```{r pair}
+
+pairedOptions <- 
+  oneExpiryOptionData %>% 
+  distinct(strike) %>% 
+  arrange(strike) %>% 
+  data.frame() %>%
+  left_join(callOptionData[,c('strike','price')],by="strike")# merge by strike
+
+```
+
+
+```{r rename&merge}
+
+pairedOptions <-
+  pairedOptions %>% 
+  rename(callPrice=price) %>% 
+  left_join(putOptionData[,c('strike','price')],by="strike") %>% 
+  rename(putPrice=price)
+
+```
+
+
+```{r implied&Plot}
+
+pairedOptions %<>% 
+  mutate(impliedSPX_Pseudo=callPrice+strike-putPrice)
+#plot
+ggplot(pairedOptions,aes(x=strike,y=impliedSPX_Pseudo))+
+  geom_point(shape = 1)
+
+```
+
+# implied futures, interest rate
+
+```{r sample & regress}
+
+sampleImpliedR <- 
+  pairedOptions %>% 
+  mutate(x=putPrice-callPrice) %>% 
+  select(strike,x) %>% 
+  data.frame()
+
+#line regress
+resIR=lm(strike ~ x, data = sampleImpliedR)
+
+impliedSPXF=resIR$coefficients[1]
+
+impliedR=log(resIR$coefficients[2])/ttm
+
+```
+
+
+
+```{r impliedSPXF&plot}
+
+pairedOptions <- pairedOptions %>% 
+  mutate(impliedSPXF=(callPrice-putPrice)*exp(impliedR*ttm)+strike)
+#
+ggplot(pairedOptions,aes(x=strike,y=impliedSPXF))+
+  geom_point()
+
+
+```
+
+
+# get the corresponding index level
+
+```{r}
+
+underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
+
+underlying$TradeDate %<>% 
+  as.Date("%Y-%m-%d")
+
+spotUnderlying <- underlying[underlying$TradeDate=="2020-01-10",'SPX']
+
+```
+
+
+# get the corresponding futures price
+```{r}
+
+spEminiCross <- read.csv("./sampleData/spxEminiTrade20200110.csv", header=T,as.is = T,check.names=FALSE)
+
+spEminiCross$TradeDate %<>% as.Date("%d/%m/%Y")
+
+spotSPEmini <- spEminiCross[1,'19/06/2020']
+
+```
+
+
+# implied dividend yield
+
+```{r}
+
+impliedDividend <- impliedR-log(impliedSPXF/spotUnderlying)/ttm
+```
+
+
+# implied index level
+```{r}
+
+pairedOptions <- 
+  pairedOptions %>% 
+  mutate(impliedSPX=
+           (callPrice-putPrice+strike*exp(-impliedR*ttm))
+         *exp(impliedDividend*ttm)
+         )
+#Plot
+ggplot(pairedOptions,aes(x=strike,y=impliedSPX))+
+  geom_point(shape=1)
+
+impliedSPX <- mean(pairedOptions$impliedSPX)
+```
+
+#################################################################
+
+
+#################################################################
+### Option bounds
+#################################################################
+#call options
+
+
+```{r}
+
+callOptionData <- 
+  callOptionData %>% 
+  mutate(upperBound=spotUnderlying,
+         lowerBound=impliedSPX*exp(-impliedDividend*ttm)-strike*exp(-impliedR*ttm))
+
+callOptionData$lowerBound[callOptionData$lowerBound<0]=0
+
+```
+
+
+```{r PlotCall}
+callOptionData %>% 
+  ggplot(aes(x=strike))+
+  ylim(0,spotUnderlying*1.2)+
+  geom_point(aes(y=price),shape=1)+
+  geom_line(aes(y=upperBound,colour="upperBound"))+
+  geom_line(aes(y=lowerBound,colour="lowerBound"))
+```
+
+
+#put option
+
+```{r}
+putOptionData <- 
+  putOptionData %>% 
+  mutate(upperBound=strike*exp(-impliedR*ttm),
+         lowerBound=strike*exp(-impliedR*ttm)-spotUnderlying*exp(-impliedDividend*ttm))
+
+putOptionData$lowerBound[putOptionData$lowerBound<0]=0
+```
+
+
+```{r PlotPut}
+putOptionData %>% 
+  ggplot(aes(x=strike))+
+  ylim(0,spotUnderlying*1.2)+
+  geom_point(aes(y=price),shape=1)+
+  geom_line(aes(y=upperBound,colour="upperBound"))+
+  geom_line(aes(y=lowerBound,colour="lowerBound"))
+
+```
