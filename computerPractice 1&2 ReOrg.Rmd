@@ -9,23 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#### Dataset Explanation
-
-> *Underlying* = S&P500 + SDPR ETF (SPY column)
-
-> *SPY option* trade at 2020 01 10
-
-> *And expiry* at 2020 06 19
-
-> *SPX option* trade at 2020 01 10
-
-> *And expiry* at 2020 06 19
-
-> *SPX mini futures* trade at 2020 01 10
-
-> *And expiry* at 2020 06 19
-
-## load lib
+###### See here for [Dataset Explanation]
 
 ```{r lib, include=FALSE}
 library(tidyverse)
@@ -413,3 +397,19 @@ putOptionData %>%
   geom_line(aes(y=lowerBound,colour="lowerBound"))
 
 ```
+
+#### Dataset Explanation
+
+> *Underlying* = S&P500 + SDPR ETF (SPY column)
+
+> *SPY option* trade at 2020 01 10 from `r min(spxOptionCross$expiryDate)` to `r max(spxOptionCross$expiryDate)`
+
+> *And expiry* at 2020 06 19
+
+> *SPX option* trade at 2020 01 10
+
+> *And expiry* at 2020 06 19
+
+> *SPX mini futures* trade at 2020 01 10
+
+> *And expiry* at 2020 06 19
