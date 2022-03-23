@@ -20,7 +20,6 @@ library(bizdays)
 library(magrittr)
 ```
 
-
 ```{r load all data, include=FALSE}
 
 # read underlying SP500 and SPDR data
@@ -82,7 +81,6 @@ spEminiTS$TradeDate %<>%
 
 ```
 
-
 #### *1.1 Present and comment on the summary statistics of S&P 500 index, SDPR ETF, S&P 500 E-mini futures, SPX options, and SPY options. (5%)*
 
 ##### 1.1.1 S&P 500 index, SDPR ETF (SPY)
@@ -95,15 +93,17 @@ underlying$TradeDate <-
   underlying$TradeDate %>%
   as.Date("%Y-%m-%d")
 
-N <- length(underlying$SPX)
+
 
 ```
 
 ```{r 1.1.1 Return Calcu}
 
+Nspx <- length(underlying$SPX)
+
 underlying <- underlying %>% 
-  mutate(retSPX=c(NA,SPX[2:N]/SPX[1:N-1]-1),
-         retSPY=c(NA,SPY[2:N]/SPY[1:N-1]-1),
+  mutate(retSPX=c(NA,SPX[2:Nspx]/SPX[1:Nspx-1]-1),
+         retSPY=c(NA,SPY[2:Nspx]/SPY[1:Nspx-1]-1),
          logRetSPX=c(NA,diff(log(SPX))),
          logRetSPY=c(NA,diff(log(SPY))),
          ) %>% 
@@ -113,6 +113,8 @@ underlying <- underlying %>%
 
 ```{r 1.1.1 set Dates }
 # Set the begin date and end date 
+# why select?
+
 B.dates <- "2010-01-01"
 E.dates <- "2020-12-31"
 
@@ -120,7 +122,7 @@ E.dates <- "2020-12-31"
 
 ```{r 1.1.1 filter with set Dates}
 
-selectedSample <- filter(underlying,TradeDate>=B.dates&TradeDate<=E.dates )
+selectedUnderlying <- filter(underlying,TradeDate>=B.dates&TradeDate<=E.dates )
   
 ```
 
@@ -128,22 +130,29 @@ Summary of SPX log return
 
 ```{r 1.1.1 plot SPX}
 
-selectedSample %>% 
+selectedUnderlying %>% 
   ggplot(aes(x=TradeDate,y=SPX))+
   geom_line(colour="red")
 
 ```
 
-
 ```{r 1.1.1 SPX summary }
-mean(selectedSample$logRetSPX)*252
-var(selectedSample$logRetSPX)
-sqrt(var(selectedSample$logRetSPX)*252)
-skewness(selectedSample$logRetSPX)
-kurtosis(selectedSample$logRetSPX)
+mean(selectedUnderlying$logRetSPX)*252
+var(selectedUnderlying$logRetSPX)
+sqrt(var(selectedUnderlying$logRetSPX)*252)
+skewness(selectedUnderlying$logRetSPX)
+kurtosis(selectedUnderlying$logRetSPX)
 
 # normality test
-jarque.bera.test(selectedSample$logRetSPX)
+jarque.bera.test(selectedUnderlying$logRetSPX)
+```
+
+
+```{r 1..1.1 SPX hist plot}
+hist(selectedUnderlying$logRetSPX, breaks = 100)
+d <- density(selectedUnderlying$logRetSPX)
+d
+plot(d)
 ```
 
 ```{r 1.1.1 SPX density and N-Distribut}
@@ -151,7 +160,31 @@ jarque.bera.test(selectedSample$logRetSPX)
 
 xAxis=seq(-0.15,0.1,by=0.0001)
 plot(d,xlim = c(-0.05,0.05))
-lines(xAxis,dnorm(xAxis, mean(selectedSample$logRetSPX), sqrt(var(selectedSample$logRetSPX))),col="green")
+lines(xAxis,dnorm(xAxis, mean(selectedUnderlying$logRetSPX), sqrt(var(selectedUnderlying$logRetSPX))),col="green")
+
+```
+
+###### 1.1.2 Summary of SPY log return
+
+```{r 1.1.2 SPY summary }
+
+mean(selectedUnderlying$logRetSPY)*252
+var(selectedUnderlying$logRetSPY)
+sqrt(var(selectedUnderlying$logRetSPY)*252)
+skewness(selectedUnderlying$logRetSPY)
+kurtosis(selectedUnderlying$logRetSPY)
+
+# normality test
+jarque.bera.test(selectedUnderlying$logRetSPY)
+
+```
+
+```{r 1.1.2 SPY density and N-Distribut}
+# compare empirical density and a normal distribution with the same mean and variance
+
+xAxis=seq(-0.15,0.1,by=0.0001)
+plot(d,xlim = c(-0.05,0.05))
+lines(xAxis,dnorm(xAxis, mean(selectedUnderlying$logRetSPX), sqrt(var(selectedUnderlying$logRetSPX))),col="green")
 
 ```
 
@@ -159,39 +192,34 @@ lines(xAxis,dnorm(xAxis, mean(selectedSample$logRetSPX), sqrt(var(selectedSample
 
 ```{r 1.2 plot spx-spy}
 
-selectedSample %>% 
+selectedUnderlying %>% 
   ggplot()+
   geom_line(aes(x=TradeDate,y=SPX),colour="red")+
   geom_line(aes(x=TradeDate,y=SPY*10),colour="green")
 
 ```
 
-
 ```{r 1.2 plot spx-spy10}
 #according to above plot, spx is quiet close to spy*10.  try plot out the diff and %diff
-selectedSample <- selectedSample %>% 
+selectedUnderlying <- selectedUnderlying %>% 
   mutate(diff=SPX-SPY*10) 
 
-selectedSample %>%
+selectedUnderlying %>%
   ggplot(aes(x=TradeDate,y=diff))+
   geom_line(colour="red")
 ```
 
-```{r 1.2 plot diffP%}
-selectedSample <-  selectedSample %>% 
+```{r 1.2 plot diffP}
+
+selectedUnderlying <-
+  selectedUnderlying %>% 
   mutate(diffP=(SPX/SPY*10)-1) 
-selectedSample %>%
+
+selectedUnderlying %>%
   ggplot(aes(x=TradeDate,y=diffP))+
   geom_line(colour="red")
-```
 
-```{r 1.2 hist plot}
-hist(selectedSample$logRetSPX, breaks = 100)
-d <- density(selectedSample$logRetSPX)
-d
-plot(d)
 ```
-
 
 
 
@@ -258,7 +286,6 @@ spxOptionCross$expiryDate %<>%
   as.Date("%Y%m%d")
 
 ```
-
 
 ```{r sort&newData}
 #spxOptionCross %<>%   arrange(expiryDate)
@@ -477,7 +504,7 @@ putOptionData %>%
 
 #### Dataset Explanation
 
-> *Underlying* = S&P500 + SDPR ETF (SPY column)
+> *Underlying* = S&P500 + SDPR ETF (SPY column) from `r min(underlying$expiryDate)` to `r max(underlying$expiryDate)`
 
 > *SPY option* trade at 2020-01-10 from `r min(spxOptionCross$expiryDate)` to `r max(spxOptionCross$expiryDate)`
 
@@ -487,7 +514,6 @@ putOptionData %>%
 
 > *And expiry* at 2020-06-19 from `r min(spyOptionPD$TradeDate)` to `r max(spyOptionPD$TradeDate)`
 
-> *SPX mini futures* trade at 2020-01-10 
+> *SPX mini futures* trade at 2020-01-10
 
 > *And expiry* at 2020-06-19 from `r min(spEminiTS$TradeDate)`to `r max(spEminiTS$TradeDate)`
-
