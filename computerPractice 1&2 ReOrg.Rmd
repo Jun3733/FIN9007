@@ -1,7 +1,7 @@
 ---
 title: "Exercise 1&2 ReOrg"
 author: "lbian01"
-date: "16/03/2022"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
@@ -28,8 +28,7 @@ underlying <-
   read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
 
 # as date
-underlying$TradeDate <- 
-  underlying$TradeDate %>%
+underlying$TradeDate %<>%
   as.Date("%Y-%m-%d")
 
 # read the SPX cross section data on 20200110 
@@ -38,8 +37,7 @@ spxOptionCross <-
                colClasses=c("numeric","character","character",rep("numeric",3)))
 
 # as date
-spxOptionCross$TradeDate <- 
-  spxOptionCross$TradeDate %>%
+spxOptionCross$TradeDate %<>%
   as.Date("%Y-%m-%d")
 
 # read the SPX Panel data on 20200110 
@@ -47,8 +45,7 @@ spxOptionPD <-
   read.csv("./sampleData/spxOptionDataEx20200619.csv", colClasses=c("numeric","character","character",rep("numeric",3)))
 
 # as date
-spxOptionPD$TradeDate <- 
-  spxOptionPD$TradeDate %>%
+spxOptionPD$TradeDate %<>%
   as.Date("%Y-%m-%d")
 
 # read the SPY data 
@@ -56,8 +53,7 @@ spyOptionCross <-
   read.csv("./sampleData/spyOptionData20200110.csv", colClasses=c("numeric","character","character",rep("numeric",3)))
 
 # as date
-spyOptionCross$TradeDate <- 
-  spyOptionCross$TradeDate %>%
+spyOptionCross$TradeDate %<>%
   as.Date("%Y-%m-%d")
 
 # read the SPY data 
@@ -65,8 +61,7 @@ spyOptionPD <-
   read.csv("./sampleData/spyOptionDataEx20200619.csv", colClasses=c("numeric","character","character",rep("numeric",3)))
 
 # as date
-spyOptionPD$TradeDate <- 
-  spyOptionPD$TradeDate %>%
+spyOptionPD$TradeDate %<>%
   as.Date("%Y-%m-%d")
 
 # read spx EminiEx data
@@ -81,9 +76,9 @@ spEminiTS$TradeDate %<>%
 
 #### *1.1 Present and comment on the summary statistics of S&P 500 index, SDPR ETF, S&P 500 E-mini futures, SPX options, and SPY options. (5%)*
 
-##### S&P 500 index, SDPR ETF
+##### S&P 500 index, SDPR ETF (SPY)
 
-```{r 1.1 ReaUnderlying}
+```{r 1.1.1 Read Underlying}
 
 underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
 
@@ -95,7 +90,8 @@ N <- length(underlying$SPX)
 
 ```
 
-```{r 1.1 Return Calcu}
+```{r 1.1.1 Return Calcu}
+
 underlying <- underlying %>% 
   mutate(retSPX=c(NA,SPX[2:N]/SPX[1:N-1]-1),
          retSPY=c(NA,SPY[2:N]/SPY[1:N-1]-1),
@@ -106,42 +102,44 @@ underlying <- underlying %>%
 
 ```
 
-```{r 1.1 set Dates }
+```{r 1.1.1 set Dates }
 # Set the begin date and end date 
 B.dates <- "2010-01-01"
 E.dates <- "2020-12-31"
 
 ```
 
-```{r 1.1 filter with set Dates}
+```{r 1.1.1 filter with set Dates}
+
 selectedSample <- filter(underlying,TradeDate>=B.dates&TradeDate<=E.dates )
   
 ```
 
-```{r 1.1 plot SPX}
+```{r 1.1.1 plot SPX}
+
 selectedSample %>% 
   ggplot(aes(x=TradeDate,y=SPX))+
-  geom_line(colour="#ff0000")
+  geom_line(colour="red")
 
 ```
 
 #### *1.2 Present and comment on the relationship between S&P 500 index and SDPR ETF. (5%)*
 
-```{r 1.1 plot spx-spy10}
+```{r 1.2 plot spx-spy10}
 selectedSample <- selectedSample %>% 
   mutate(diff=SPX-SPY*10) 
 
 selectedSample %>%
   ggplot(aes(x=TradeDate,y=diff))+
-  geom_line(colour="#ff0000")
+  geom_line(colour="red")
 ```
 
-```{r 1.1 plot diffP}
+```{r 1.2 plot diffP}
 selectedSample <-  selectedSample %>% 
   mutate(diffP=(SPX/SPY*10)-1) 
 selectedSample %>%
   ggplot(aes(x=TradeDate,y=diffP))+
-  geom_line(colour="#ff0000")
+  geom_line(colour="red")
 ```
 
 ```{r 1.1 hist plot}
@@ -241,6 +239,7 @@ spxOptionCross$expiryDate %<>%
   as.Date("%Y%m%d")
 
 ```
+
 
 ```{r sort&newData}
 #spxOptionCross %<>%   arrange(expiryDate)
