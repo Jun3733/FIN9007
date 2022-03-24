@@ -783,13 +783,13 @@ cat("Option price is: ",optionTemp)
 ###### SPX (data pre loaded, ret pre caled,see 1.1)
 ```{r 3.1.4 SPX set parameters}
 
-underlying$var=NA
+underlying$varspx=NA
 
 m_days=60
 
 # fill var 
 for (i in ((m_days+1):Nspx)){
-  underlying[i,'var']=1/(m_days-1)*sum((
+  underlying[i,'varspx']=1/(m_days-1)*sum((
       underlying[(i-m_days-1):(i-1),'retSPX']-mean(underlying[(i-m_days-1):(i-1),'retSPX'])
       )^2)
 }
@@ -797,7 +797,7 @@ for (i in ((m_days+1):Nspx)){
 #mutate std Annual
 underlying <- 
   underlying %>% 
-  mutate(stdAnnualSPX=(var*252/m_days)^0.5)
+  mutate(stdAnnualSPX=(varspx*252/m_days)^0.5)
 
 #plot
 underlying[seq(from = 1, to = Nspx, by = m_days),] %>% 
@@ -831,13 +831,13 @@ volatilitySPX2 <-
 ###### SPY (data pre loaded, ret pre caled,see 1.1)
 ```{r 3.1.4 SPY set parameters}
 
-underlying$var=NA
+underlying$varspy=NA
 
 m_days=60
 
 # fill var 
 for (i in ((m_days+1):Nspx)){
-  underlying[i,'var']=1/(m_days-1)*sum((
+  underlying[i,'varspy']=1/(m_days-1)*sum((
       underlying[(i-m_days-1):(i-1),'retSPY']-mean(underlying[(i-m_days-1):(i-1),'retSPY'])
       )^2)
 }
@@ -845,7 +845,7 @@ for (i in ((m_days+1):Nspx)){
 #mutate std Annual
 underlying <- 
   underlying %>% 
-  mutate(stdAnnualSPY=(var*252/m_days)^0.5)
+  mutate(stdAnnualSPY=(varspy*252/m_days)^0.5)
 
 #plot
 underlying[seq(from = 1, to = Nspx, by = m_days),] %>% 
