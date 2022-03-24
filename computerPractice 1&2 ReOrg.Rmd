@@ -877,7 +877,7 @@ volatilitySPY2 <-
 # 需要参数对照进行一个二叉树的跑，以及跑多少次这个问题不确定
 #### Dataset Explanation
 
-> *Underlying* = S&P500 + SDPR ETF (SPY column) trade from `r min(underlying$TradeDate)` to `r max(underlying$TradeDate)` expiry from `r min(underlying$expiryDate)` to `r max(underlying$expiryDate)`
+> *Underlying* = S&P500 + SDPR ETF (SPY column) trade from `r min(underlying$TradeDate)` to `r max(underlying$TradeDate)`
 
 > *SPX option* trade at 2020-01-10 expiry from `r min(spxOptionCross$expiryDate)` to `r max(spxOptionCross$expiryDate)`
 
