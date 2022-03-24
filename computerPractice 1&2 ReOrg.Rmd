@@ -85,7 +85,7 @@ spEminiTS$TradeDate %<>%
 
 ###### 1.1.1 S&P 500 index, SDPR ETF (SPY)
 
-```{r 1.1.1 Read Underlying}
+```{r 1.1.1 Read Underlying, eval=FALSE, include=FALSE}
 
 underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
 
@@ -164,6 +164,7 @@ lines(xAxis,dnorm(xAxis, mean(selectedUnderlying$logRetSPX), sqrt(var(selectedUn
 
 ```
 
+
 ###### 1.1.2 Summary of SPY log return
 ```{r 1.1.2 plot SPY}
 
@@ -195,6 +196,7 @@ lines(xAxis,dnorm(xAxis, mean(selectedUnderlying$logRetSPX), sqrt(var(selectedUn
 
 ```
 
+
 ######1.1.3 Summary of SPX option (log return?)
 
 ```{r 1.1.3 SPXOption Return Calcu}
@@ -208,6 +210,7 @@ underlying <- underlying %>%
   na.omit()
 
 ```
+
 #### *1.2 Present and comment on the relationship between S&P 500 index and SDPR ETF. (5%)*
 
 ```{r 1.2 plot spx-spy}
@@ -245,9 +248,10 @@ selectedUnderlying %>%
 
 line 65
 
+
 #### *1.3 Use time series of S&P 500 futures prices, present and comment the relationship between S&P 500 futures and S&P 500 index level. (5%)*
 
-```{r ReadDa}
+```{r 1.3 ReadData, eval=FALSE, include=FALSE}
 spEminiTS=read.csv("./sampleData/spxEminiEx20200619.csv", header=T,as.is = T,check.names=FALSE)
 
 spEminiTS$TradeDate %<>% 
@@ -255,14 +259,14 @@ spEminiTS$TradeDate %<>%
 
 ```
 
-```{r}
+```{r 1.3 Merge}
 #merge SPX to TS by Date
 
 spEminiTS=merge(x=spEminiTS,y=underlying[c('TradeDate','SPX')],by="TradeDate",all.x=TRUE)
 
 ```
 
-```{r mutate new Basis cols}
+```{r 1.3 mutate new Basis cols}
 spEminiTS <- 
   spEminiTS %>% 
   mutate(Basis=spEminiTS$`19/06/2020`-SPX,
@@ -270,10 +274,10 @@ spEminiTS <-
 
 ```
 
-```{r plot}
+```{r 1.3 plot Basis and Basisp}
 spEminiTS %>% 
   ggplot(aes(x=TradeDate,y=Basis))+
-  geom_line(colour="#ff0000")
+  geom_line(colour="red")
 
 spEminiTS %>% 
   ggplot(aes(x=TradeDate,y=BasisP))+
@@ -284,20 +288,17 @@ spEminiTS %>%
 
 line 96
 
-################################################################# 
 
-#### put call parity
+#### *2.1 Estimate the put-call parity implied underlying asset price. Compare the put-call parity implied underlying asset price with the S&P 500 index level and S&P 500 futures price. Calculate put-call parity implied interest rate and dividend yield. Does put-call parity implied underlying asset price always move in the same direction as the S&P 500 index level? (15%)*
 
-################################################################# 
-
-```{r reload spxOption }
+```{r 2.1 reload spxOption, eval=FALSE, include=FALSE}
 
 spxOptionCross=read.csv("./sampleData/spxOptionData20200110.csv", #check.names=FALSE,
                colClasses=c("numeric","character","character",rep("numeric",3)))
 
 ```
 
-```{r TransDate}
+```{r 2.1 TransDate, eval=FALSE, include=FALSE}
 
 spxOptionCross$TradeDate %<>% 
   as.Date("%Y%m%d")
@@ -307,7 +308,7 @@ spxOptionCross$expiryDate %<>%
 
 ```
 
-```{r sort&newData}
+```{r 2.1 sort&newData}
 #spxOptionCross %<>%   arrange(expiryDate)
 
 sort(unique(spxOptionCross$expiryDate))
@@ -320,9 +321,9 @@ oneExpiryOptionData <-
 
 ```
 
-#### calculate business days
+###### calculate business days
 
-```{r calBusiDays}
+```{r 2.1 calBusiDays}
 
 business_calendar <- 
   create.calendar('my_calendar', 
@@ -334,7 +335,7 @@ ttm=bizdays(oneExpiryOptionData$TradeDate[1],
 
 ```
 
-```{r cal&Sort Data}
+```{r 2.1 cal&Sort Data}
 #Call Option
 callOptionData <- filter(oneExpiryOptionData,c_p==1)
 
@@ -349,7 +350,7 @@ putOptionData <- putOptionData %>%
 
 ```
 
-```{r group&Plot}
+```{r 2.1 group&Plot}
 
 group <- ifelse(oneExpiryOptionData$c_p==1, "Call options", "Put options")
 
@@ -359,9 +360,9 @@ oneExpiryOptionData %>%
 
 ```
 
-#### pair call and put
+###### pair call and put
 
-```{r pair}
+```{r 2.1 pair}
 
 pairedOptions <- 
   oneExpiryOptionData %>% 
@@ -372,7 +373,7 @@ pairedOptions <-
 
 ```
 
-```{r rename&merge}
+```{r 2.1 rename&merge}
 
 pairedOptions <-
   pairedOptions %>% 
@@ -382,7 +383,7 @@ pairedOptions <-
 
 ```
 
-```{r implied&Plot}
+```{r 2.1 implied&Plot}
 
 pairedOptions %<>% 
   mutate(impliedSPX_Pseudo=callPrice+strike-putPrice)
@@ -392,9 +393,9 @@ ggplot(pairedOptions,aes(x=strike,y=impliedSPX_Pseudo))+
 
 ```
 
-#### implied futures, interest rate
+###### implied futures, interest rate
 
-```{r sample & regress}
+```{r 2.1 sample & regress}
 
 sampleImpliedR <- 
   pairedOptions %>% 
@@ -402,7 +403,7 @@ sampleImpliedR <-
   select(strike,x) %>% 
   data.frame()
 
-#line regress
+#linear regression
 resIR=lm(strike ~ x, data = sampleImpliedR)
 
 impliedSPXF=resIR$coefficients[1]
@@ -411,7 +412,7 @@ impliedR=log(resIR$coefficients[2])/ttm
 
 ```
 
-```{r impliedSPXF&plot}
+```{r 2.1 impliedSPXF&plot}
 
 pairedOptions <- pairedOptions %>% 
   mutate(impliedSPXF=(callPrice-putPrice)*exp(impliedR*ttm)+strike)
@@ -424,7 +425,7 @@ ggplot(pairedOptions,aes(x=strike,y=impliedSPXF))+
 
 #### get the corresponding index level
 
-```{r}
+```{r 2.1 spotUnderlying}
 
 underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
 
@@ -435,9 +436,9 @@ spotUnderlying <- underlying[underlying$TradeDate=="2020-01-10",'SPX']
 
 ```
 
-#### get the corresponding futures price
+###### get the corresponding futures price
 
-```{r}
+```{r 2.1 load futures price}
 
 spEminiCross <- read.csv("./sampleData/spxEminiTrade20200110.csv", header=T,as.is = T,check.names=FALSE)
 
@@ -447,16 +448,16 @@ spotSPEmini <- spEminiCross[1,'19/06/2020']
 
 ```
 
-#### implied dividend yield
+###### implied dividend yield
 
-```{r}
+```{r 2.1 dividend yield}
 
 impliedDividend <- impliedR-log(impliedSPXF/spotUnderlying)/ttm
 ```
 
-#### implied index level
+###### implied index level
 
-```{r}
+```{r 2.1 index level}
 
 pairedOptions <- 
   pairedOptions %>% 
@@ -471,17 +472,13 @@ ggplot(pairedOptions,aes(x=strike,y=impliedSPX))+
 impliedSPX <- mean(pairedOptions$impliedSPX)
 ```
 
-################################################################# 
 
-################################################################# 
+#### *2.2 Compare option price bounds and the market option prices. Does option prices within the theoretical bounds? Is there an arbitrage opportunity? (5%)*
 
-#### Option bounds
 
-################################################################# 
+##### call options
 
-#### call options
-
-```{r}
+```{r 2.2 mutate Call Bounds}
 
 callOptionData <- 
   callOptionData %>% 
@@ -492,7 +489,7 @@ callOptionData$lowerBound[callOptionData$lowerBound<0]=0
 
 ```
 
-```{r PlotCall}
+```{r 2.2 Plot Call Bounds}
 callOptionData %>% 
   ggplot(aes(x=strike))+
   ylim(0,spotUnderlying*1.2)+
@@ -501,9 +498,9 @@ callOptionData %>%
   geom_line(aes(y=lowerBound,colour="lowerBound"))
 ```
 
-#### put option
+##### put option
 
-```{r}
+```{r 2.2 mutate put Bounds}
 putOptionData <- 
   putOptionData %>% 
   mutate(upperBound=strike*exp(-impliedR*ttm),
@@ -512,7 +509,7 @@ putOptionData <-
 putOptionData$lowerBound[putOptionData$lowerBound<0]=0
 ```
 
-```{r PlotPut}
+```{r 2.2 Plot Put Bounds}
 putOptionData %>% 
   ggplot(aes(x=strike))+
   ylim(0,spotUnderlying*1.2)+
@@ -521,6 +518,12 @@ putOptionData %>%
   geom_line(aes(y=lowerBound,colour="lowerBound"))
 
 ```
+
+#### *3.1 Use binomial tree model, calculate both SPX and SPY option prices. Are option prices calculated from the binomial tree model consistent with market option prices? (10%)*
+
+
+
+
 
 #### Dataset Explanation
 
