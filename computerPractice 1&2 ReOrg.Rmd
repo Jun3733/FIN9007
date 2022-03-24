@@ -3,10 +3,12 @@ title: "Exercise 1&2 ReOrg"
 author: "lbian01"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
+css: hw.css
+
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE)
 ```
 
 ###### See here for [Dataset Explanation]
