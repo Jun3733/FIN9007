@@ -852,7 +852,7 @@ underlying[seq(from = 1, to = Nspx, by = m_days),] %>%
 
 ```
 
-###### volatility for binomial tree
+###### SPY volatility for binomial tree
 ```{r 3.1.4 SPY vloatility binomial tree}
 
 selectedTradeDate="2020-01-10"
