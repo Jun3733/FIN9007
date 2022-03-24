@@ -504,16 +504,16 @@ putOptionData %>%
 
 #### Dataset Explanation
 
-> *Underlying* = S&P500 + SDPR ETF (SPY column) from `r min(underlying$expiryDate)` to `r max(underlying$expiryDate)`
+> *Underlying* = S&P500 + SDPR ETF (SPY column) trade from `r min(underlying$TradeDate)` to `r max(underlying$TradeDate)` expiry from `r min(underlying$expiryDate)` to `r max(underlying$expiryDate)`
 
-> *SPY option* trade at 2020-01-10 from `r min(spxOptionCross$expiryDate)` to `r max(spxOptionCross$expiryDate)`
+> *SPX option* trade at 2020-01-10 expiry from `r min(spxOptionCross$expiryDate)` to `r max(spxOptionCross$expiryDate)`
 
-> *And expiry* at 2020-06-19 from `r min(spxOptionPD$TradeDate)` to `r max(spxOptionPD$TradeDate)`
+> *And expiry* at 2020-06-19 trade from `r min(spxOptionPD$TradeDate)` to `r max(spxOptionPD$TradeDate)`
 
-> *SPX option* trade at 2020-01-10 from `r min(spyOptionCross$expiryDate)` to `r max(spyOptionCross$expiryDate)`
+> *SPY option* trade at 2020-01-10 expiry from `r min(spyOptionCross$expiryDate)` to `r max(spyOptionCross$expiryDate)`
 
-> *And expiry* at 2020-06-19 from `r min(spyOptionPD$TradeDate)` to `r max(spyOptionPD$TradeDate)`
+> *And expiry* at 2020-06-19 trade from `r min(spyOptionPD$TradeDate)` to `r max(spyOptionPD$TradeDate)`
 
 > *SPX mini futures* trade at 2020-01-10
 
-> *And expiry* at 2020-06-19 from `r min(spEminiTS$TradeDate)`to `r max(spEminiTS$TradeDate)`
+> *And expiry* at 2020-06-19 trade from `r min(spEminiTS$TradeDate)`to `r max(spEminiTS$TradeDate)`
