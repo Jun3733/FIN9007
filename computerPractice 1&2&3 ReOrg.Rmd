@@ -789,6 +789,7 @@ for (j in 1:(nSteps+1)){
 print(statesTemp)
 
 ```
+
 ###### option price at expiry
 ```{r 3.1.1 option price at expiry}
 # note: nSetps=2
@@ -833,11 +834,20 @@ cat("Option price is: ",optionTemp)
 
 ##### 3.1.2 stock with continuous dividend yield 1000 steps
 
+$u=e^{\sigma \sqrt{\bigtriangleup t} } $
+
+$d=e^{-\sigma \sqrt{\bigtriangleup t} } $
+
+$p=\frac{a-d}{u-d} $
+
+$a=e^{r\bigtriangleup t } $
+
+
 ```{r 3.1.2 load parameters}
 nSteps=1000
 interestRate=0.05
 dividendYield=0.02
-volatility=0.2
+volatility=0.2 
 ttm=6/12
 spotUndelrying=810
 strike=800
