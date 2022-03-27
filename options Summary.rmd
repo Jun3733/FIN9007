@@ -1,0 +1,159 @@
+
+
+##### 1.1.5 Summary of SPX option 
+
+```{r 1.1.5 SPXOpt hist}
+Modes(spxOptionPD$TradeDate)
+
+Modes(spxOptionPD$strike)
+
+
+#hist
+spxOptionPD %>% 
+  ggplot(aes(x=strike))+
+  geom_histogram(binwidth=25,fill="#69b3a2",color="#e9ecef")#, alpha=0.9)
+
+#mutate frequency
+spxOptionPD <- 
+  spxOptionPD %>% 
+  mutate(FrequencyStrike=ave(seq(length(strike)),strike,FUN = length))
+
+  
+```
+
+
+```{r 1.1.5 Sum SPXOpt}
+#call
+SPXCallEx <- 
+  spxOptionPD %>% 
+  filter(c_p==1) %>% 
+  select(-(X:TradeDate))
+
+summary(SPXCallEx)
+
+#PutEx
+SPXPutEx <- 
+  spxOptionPD %>% 
+  filter(c_p==0) %>% 
+  select(-(X:TradeDate))
+
+summary(SPXPutEx)
+
+```
+```{r 1.1.5 SPXOpt c-p plot}
+
+ggplot()+
+  geom_line(data=SPXCallEx,aes(strike,price),color='red')+
+  geom_line(data=SPXPutEx,aes(strike,price),color='green')+
+  ggtitle('RedCallEx and GreenPutEx')
+
+```
+
+
+##### 1.1.6 Summary of SPY option 
+
+
+```{r 1.1.6 SPYOpt hist}
+Modes(spyOptionPD$TradeDate)
+
+Modes(spyOptionPD$strike)
+
+#hist
+spyOptionPD %>% 
+  ggplot(aes(x=strike))+
+  geom_histogram(binwidth = 5,fill="#69b3a2",color="#e9ecef")#, alpha=0.9)
+
+#mutate frequency
+spyOptionPD <- 
+  spyOptionPD %>% 
+  mutate(FrequencyStrike=ave(seq(length(strike)),strike,FUN = length))
+
+  
+```
+
+
+```{r 1.1.6 Sum SPYOpt}
+#CallEx
+SPYCallEx <- 
+  spyOptionPD %>% 
+  filter(c_p==1) %>% 
+  select(-(X:TradeDate))
+
+summary(SPYCallEx)
+
+#PutEx
+SPYPutEx <- 
+  spyOptionPD %>% 
+  filter(c_p==0) %>% 
+  select(-(X:TradeDate))
+
+summary(SPYPutEx)
+
+```
+
+```{r 1.1.6 SPYOpt c-p plot}
+
+ggplot()+
+  geom_line(data=SPYCallEx,aes(strike,price),color='red')+
+  geom_line(data=SPYPutEx,aes(strike,price),color='green')+
+  ggtitle('RedCallEx and GreenPutEx')
+
+```
+
+
+
+
+
+
+
+
+
+
+
+##### 1.1.4 Summary of SPY option 
+
+```{r 1.1.4 SPYOpt hist}
+Modes(spyOptionCross$expiryDate)
+
+Modes(spyOptionCross$strike)
+
+#hist
+spyOptionCross %>% 
+  ggplot(aes(x=strike))+
+  geom_histogram(binwidth=5,fill="#69b3a2",color="#e9ecef")#, alpha=0.9)
+
+#mutate frequency
+spyOptionCross <- 
+  spyOptionCross %>% 
+  mutate(FrequencyStrike=ave(seq(length(strike)),strike,FUN = length))
+
+  
+```
+
+
+```{r 1.1.4 Sum SPYOpt}
+#call
+SPYCall <- 
+  spyOptionCross %>% 
+  filter(c_p==1) %>% 
+  select(-(X:TradeDate))
+
+summary(SPYCall)
+
+#Put
+SPYPut <- 
+  spyOptionCross %>% 
+  filter(c_p==0) %>% 
+  select(-(X:TradeDate))
+
+summary(SPYPut)
+
+```
+```{r 1.1.4 SPYOpt c-p plot}
+
+ggplot()+
+  geom_line(data=SPYCall,aes(strike,price,colour="Call"))+
+  geom_line(data=SPYPut,aes(strike,price,colour="Put"))+
+  ggtitle('RedCall and GreenPut')
+
+```
