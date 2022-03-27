@@ -9,11 +9,17 @@ css: hw.css
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE)
+library(tidyverse)
+library(tidyquant)
+library(moments)
+library(tseries)
+library(bizdays)
+library(magrittr)
 ```
 
 ###### See here for [Dataset Explanation]
 
-```{r lib, include=FALSE}
+```{r lib, eval=FALSE, include=FALSE}
 library(tidyverse)
 library(tidyquant)
 library(moments)
@@ -98,10 +104,10 @@ spEminiTS$TradeDate %<>%
 
 ```{r 1.1.1 Read Underlying, eval=FALSE, include=FALSE}
 
-underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
+underlying2 <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
 
-underlying$TradeDate <- 
-  underlying$TradeDate %>%
+underlying2$TradeDate <- 
+  underlying2$TradeDate %>%
   as.Date("%Y-%m-%d")
 
 
@@ -653,12 +659,13 @@ ggplot(pairedOptions,aes(x=strike,y=impliedSPXF))+
 
 ```{r 2.1 spotUnderlying}
 
-underlying <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
+underlying3 <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
 
-underlying$TradeDate %<>% 
+underlying3$TradeDate %<>% 
   as.Date("%Y-%m-%d")
 
-spotUnderlying <- underlying[underlying$TradeDate=="2020-01-10",'SPX']
+spotUnderlying <- underlying3[underlying3$TradeDate=="2020-01-10",'SPX'] # why hard coding here?
+
 
 ```
 
@@ -752,7 +759,7 @@ putOptionData %>%
 
 ##### 3.1.1 Stock with continuous dividend yield
 
-```{r 3.1.1 load in parameter}
+```{r 3.1.1 EUR-CALL load in parameter}
 
 nSteps=2
 interestRate=0.05
@@ -843,7 +850,7 @@ $p=\frac{a-d}{u-d} $
 $a=e^{r\bigtriangleup t } $
 
 
-```{r 3.1.2 load parameters}
+```{r 3.1.2 EUR-CALL load parameters}
 nSteps=1000
 interestRate=0.05
 dividendYield=0.02
@@ -928,7 +935,7 @@ cat("Option price is: ",optionTemp)
 
 ##### 3.1.3 futures
 
-```{r 3.1.3 load parameters}
+```{r 3.1.3 AME-PUT load parameters}
 
 nSteps=3
 interestRate=0.05
@@ -967,6 +974,7 @@ print(statesTemp)
 ```
 
 ###### option price at expiry
+
 
 ```{r 3.1.3 option price at expiry}
 
@@ -1013,7 +1021,33 @@ cat("Option price is: ",optionTemp)
 
 
 ##### 3.1.4 historical volatility
-###### SPX (data pre loaded, ret pre caled,see 1.1)
+
+
+
+
+```{r 3.1.4 Read Underlying, eval=FALSE, include=FALSE}
+
+underlying4 <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
+
+underlying4$TradeDate <- 
+  underlying4$TradeDate %>%
+  as.Date("%Y-%m-%d")
+
+
+Nspx <- length(underlying4$SPX)
+
+underlying4 <- underlying4 %>% 
+  mutate(retSPX=c(NA,SPX[2:Nspx]/SPX[1:Nspx-1]-1),
+         retSPY=c(NA,SPY[2:Nspx]/SPY[1:Nspx-1]-1),
+         logRetSPX=c(NA,diff(log(SPX))),
+         logRetSPY=c(NA,diff(log(SPY))),
+         ) %>% 
+  na.omit()
+
+```
+
+
+###### SPX (data pre loaded, ret pre calculated,see 1.1)
 ```{r 3.1.4 SPX set parameters}
 
 underlying$varspx=NA
@@ -1025,7 +1059,10 @@ for (i in ((m_days+1):Nspx)){
   underlying[i,'varspx']=1/(m_days-1)*sum((
       underlying[(i-m_days-1):(i-1),'retSPX']-mean(underlying[(i-m_days-1):(i-1),'retSPX'])
       )^2)
+  
 }
+underlying$stdAnnual=(underlying$varspx*252/m_days)^0.5
+
 
 #mutate std Annual
 underlying <- 
@@ -1047,7 +1084,7 @@ selectedTradeDate="2020-01-10"
 spotUndelryingSPX=underlying[underlying$TradeDate==selectedTradeDate,'SPX']
 volatilitySPX=underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPX']
 
-spotUndelrying2 <- 
+spotUndelryingSPX2 <- 
   underlying %>%
   filter(TradeDate==selectedTradeDate) %>%  
   select(SPX,TradeDate) 
