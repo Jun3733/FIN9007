@@ -86,6 +86,9 @@ TESTpaired <-
   left_join(TESTput[,c('Kttm','putPrice')],by='Kttm') %>% 
   select(-c(c_p,FrequencyStrike,X))
 
+#worning
+#underlying only has data till 2020-12-31
+
 ```
 
 
@@ -93,10 +96,10 @@ TESTpaired <-
 
 ```{r}
 
-sampleImpliedR <- 
+TESTsampleImpliedR <- 
   TESTpaired %>% 
   mutate(x=putPrice-callPrice) %>% 
-  select(Kttm,expiryDate,ttm,strike,x,) %>% 
+  select(Kttm,expiryDate,ttm,strike,x,SPX) %>% 
   arrange(expiryDate) %>% 
   data.frame()
 
@@ -111,16 +114,29 @@ Dates <- unique(sampleImpliedR$expiryDate)
 
 for (i in Dates){
 
-  lmsample <- 
-  sampleImpliedR %>% 
+  
+lmsample <- 
+  TESTsampleImpliedR %>% 
   filter(expiryDate==i)
 
 resIR <- lm(strike ~ x,data = lmsample)
 
+spotUnderlying <- underlying[underlying$TradeDate=="2020-01-10",'SPX']
+
+impliedSPXF <- resIR$coefficients[1]
+
+impliedR <- log(resIR$coefficients[2])/ttm
+
+impliedDividend <- impliedR-log(impliedSPXF/spotUnderlying)/ttm
+
 lmsample <- 
   lmsample %>% 
   mutate(impliedSPXF=resIR$coefficients[1],
-         impliedR=log(resIR$coefficients[2])/ttm) 
+         impliedR=log(resIR$coefficients[2])/ttm) %>% 
+  mutate(impliedDividend=impliedR-log(impliedSPXF/spotUnderlying)/ttm) 
+
+d=as.Date.numeric(i)
+print(paste('for SPX expiry in',d,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
 
 if (i==18278){
   TESTR <- lmsample
@@ -129,47 +145,70 @@ if (i==18278){
   }
 }
 
-view(TESTR)
+
+#view(TESTR)
 
 
 ```
-```{r}
-  lmsample <- filter(sampleImpliedR,expiryDate==i) 
-  
-  resIR <- lm(strike ~ x,data = lmsample)
-  
-  
-  impliedSPXF=resIR$coefficients[1]
-  
-  impliedR=log(resIR$coefficients[2])/ttm
-  
-lmsample <- 
-  sampleImpliedR %>% 
-  filter(expiryDate==i)
-
-resIR <- lm(strike ~ x,data = lmsample)
-
-lmsample
-  lmsample %>% 
-  mutate(impliedSPXF=resIR$coefficients[1],
-         impliedR=log(resIR$coefficients[2])/ttm) 
-  
-TESTR %>% 
-  anti_join(lmsample,by='expiryDate')
-  
-
-
-```
-
-
-
 
 ```{r}
-resIR=lm(strike ~ x, data = sampleImpliedR)
+nSteps=1000
+call_put=1 #1 for call option, -1 for put option
 
-impliedSPXF=resIR$coefficients[1]
+interestRate=impliedR <- log(resIR$coefficients[2])/ttm
 
-impliedR=log(resIR$coefficients[2])/ttm
+dividendYield=impliedR-log(impliedSPXF/spotUnderlying)/ttm
 
+volatility=volatilitySPX <- underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPX']
+
+ttm=TTM <- unique(lmsample$ttm)
+
+spotUnderlying=spotUnderlyingSPX=underlying[underlying$TradeDate==selectedTradeDate,'SPX']
+
+strike=Strikes <- unique(lmsample$strike)
+
+americanOption=FALSE
+
+deltaT=ttm/nSteps
+
+uCRR=exp(volatility*sqrt(deltaT))
+
+dCRR=exp(-volatility*sqrt(deltaT))
+
+aCRR=exp((interestRate-dividendYield)*(deltaT))
+
+pCRR=(aCRR-dCRR)/(uCRR-dCRR)
 ```
 
+
+
+
+
+###### state price and option price at each node
+
+```{r 3.1.2 each node}
+
+for (i in nSteps:1){
+  optionTemp_1=rep(NA,i)
+  statesTemp=rep(NA,i)
+  for (j in 1:i){
+    statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(i-1-(j-1))
+  }
+  
+  if (americanOption==TRUE){
+    for (j in 1:i){
+      optionTemp_1[j]=max(((1-pCRR)*optionTemp[j]+pCRR*optionTemp[j+1])*exp(-interestRate*deltaT),(statesTemp[j]-strike)*call_put)
+    }    
+  }  else{
+    for (j in 1:i){
+      optionTemp_1[j]=((1-pCRR)*optionTemp[j]+pCRR*optionTemp[j+1])*exp(-interestRate*deltaT)
+    }     
+  }
+  
+  optionTemp=optionTemp_1
+
+}
+
+cat("Option price is: ",optionTemp)
+
+```
