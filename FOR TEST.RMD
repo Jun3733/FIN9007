@@ -1,0 +1,175 @@
+---
+title: "loops"
+author: "lbian01"
+date: '2022-03-27'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r 2.1 SPXTTM}
+spxOptionCross <- 
+  spxOptionCross %>% 
+  mutate(diffDate=expiryDate-TradeDate,
+         ttm=bizdays(TradeDate,expiryDate,cal = business_calendar)/252) 
+  
+```
+
+
+```{r 2.1 SPYTTM}
+spyOptionCross <- 
+  spyOptionCross %>% 
+  mutate(diffDate=expiryDate-TradeDate,
+         ttm=bizdays(TradeDate,expiryDate,cal = business_calendar)/252) 
+  
+```
+
+
+```{r PUT-CALL}
+
+#Call Option
+
+TESTcall <- spxOptionCross %>% 
+  filter(c_p==1) %>% 
+  rename(callPrice=price) %>% 
+  mutate(Kttm=ttm+strike) %>% 
+  arrange(Kttm) %>% 
+  data.frame()
+
+#Put Option
+
+TESTput <- spxOptionCross %>% 
+  filter(c_p==0) %>% 
+  rename(putPrice=price) %>% 
+  mutate(Kttm=ttm+strike) %>% 
+  arrange(Kttm) %>% 
+  data.frame()
+
+```
+
+```{r}
+callSD <- 
+  TESTcall %>% 
+  select(expiryDate,strike)
+
+
+putSD <- 
+  TESTput %>% 
+  select(expiryDate,strike)
+
+setdiff(callSD,putSD)
+```
+
+
+
+```{r}
+removeCall <- TESTcall %>% 
+  filter(expiryDate=='2021-12-17',strike<=200)
+
+xrow=removeCall$X
+
+
+
+TESTcall <- 
+  TESTcall %>% 
+  filter(X!=xrow[1]&X!=xrow[2])
+
+```
+
+
+```{r}
+
+TESTpaired <- 
+  TESTcall %>% 
+  left_join(TESTput[,c('Kttm','putPrice')],by='Kttm') %>% 
+  select(-c(c_p,FrequencyStrike,X))
+
+```
+
+
+
+
+```{r}
+
+sampleImpliedR <- 
+  TESTpaired %>% 
+  mutate(x=putPrice-callPrice) %>% 
+  select(Kttm,expiryDate,ttm,strike,x,) %>% 
+  arrange(expiryDate) %>% 
+  data.frame()
+
+Dates <- unique(sampleImpliedR$expiryDate)
+
+```
+
+
+
+```{r}
+#linear regression
+
+for (i in Dates){
+
+  lmsample <- 
+  sampleImpliedR %>% 
+  filter(expiryDate==i)
+
+resIR <- lm(strike ~ x,data = lmsample)
+
+lmsample <- 
+  lmsample %>% 
+  mutate(impliedSPXF=resIR$coefficients[1],
+         impliedR=log(resIR$coefficients[2])/ttm) 
+
+if (i==18278){
+  TESTR <- lmsample
+} else{ TESTR <- bind_rows(TESTR,lmsample)
+    
+  }
+}
+
+view(TESTR)
+
+
+```
+```{r}
+  lmsample <- filter(sampleImpliedR,expiryDate==i) 
+  
+  resIR <- lm(strike ~ x,data = lmsample)
+  
+  
+  impliedSPXF=resIR$coefficients[1]
+  
+  impliedR=log(resIR$coefficients[2])/ttm
+  
+lmsample <- 
+  sampleImpliedR %>% 
+  filter(expiryDate==i)
+
+resIR <- lm(strike ~ x,data = lmsample)
+
+lmsample
+  lmsample %>% 
+  mutate(impliedSPXF=resIR$coefficients[1],
+         impliedR=log(resIR$coefficients[2])/ttm) 
+  
+TESTR %>% 
+  anti_join(lmsample,by='expiryDate')
+  
+
+
+```
+
+
+
+
+```{r}
+resIR=lm(strike ~ x, data = sampleImpliedR)
+
+impliedSPXF=resIR$coefficients[1]
+
+impliedR=log(resIR$coefficients[2])/ttm
+
+```
+
