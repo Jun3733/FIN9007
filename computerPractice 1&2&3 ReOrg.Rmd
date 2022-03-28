@@ -564,7 +564,7 @@ business_calendar <-
 ttm=bizdays(oneExpiryOptionData$TradeDate[1],
             oneExpiryOptionData$expiryDate[1], 
             cal = business_calendar)/252
-
+cat(ttm)
 ```
 
 ```{r 2.1 cal&Sort Data}
@@ -703,6 +703,7 @@ ggplot(pairedOptions,aes(x=strike,y=impliedSPX))+
   geom_point(shape=1)
 
 impliedSPX <- mean(pairedOptions$impliedSPX)
+
 ```
 
 
@@ -766,7 +767,7 @@ interestRate=0.05
 dividendYield=0.02
 volatility=0.2
 ttm=6/12
-spotUndelrying=810
+spotUnderlying=810
 strike=800
 call_put=1 #1 for call option, -1 for put option
 
@@ -790,8 +791,9 @@ pCRR=(aCRR-dCRR)/(uCRR-dCRR)
 ```{r 3.1.1 state price at expiry}
 
 statesTemp=rep(NA,nSteps+1)
+
 for (j in 1:(nSteps+1)){
-  statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
+  statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
 }
 print(statesTemp)
 
@@ -816,7 +818,7 @@ for (i in nSteps:1){
   optionTemp_1=rep(NA,i)
   statesTemp=rep(NA,i)
   for (j in 1:i){
-    statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(i-1-(j-1))
+    statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(i-1-(j-1))
   }
   
   if (americanOption==TRUE){
@@ -856,7 +858,7 @@ interestRate=0.05
 dividendYield=0.02
 volatility=0.2 
 ttm=6/12
-spotUndelrying=810
+spotUnderlying=810
 strike=800
 call_put=1 #1 for call option, -1 for put option
 
@@ -881,7 +883,7 @@ pCRR=(aCRR-dCRR)/(uCRR-dCRR)
 
 statesTemp=rep(NA,nSteps+1)
 for (j in 1:(nSteps+1)){
-  statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
+  statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
 }
 print(statesTemp)
 ```
@@ -907,7 +909,7 @@ for (i in nSteps:1){
   optionTemp_1=rep(NA,i)
   statesTemp=rep(NA,i)
   for (j in 1:i){
-    statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(i-1-(j-1))
+    statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(i-1-(j-1))
   }
   
   if (americanOption==TRUE){
@@ -942,7 +944,7 @@ interestRate=0.05
 dividendYield=0.05
 volatility=0.3
 ttm=9/12
-spotUndelrying=31
+spotUnderlying=31
 strike=30
 call_put=-1 #1 for call option, -1 for put option
 
@@ -967,7 +969,7 @@ pCRR=(aCRR-dCRR)/(uCRR-dCRR)
 
 statesTemp=rep(NA,nSteps+1)
 for (j in 1:(nSteps+1)){
-  statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
+  statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
 }
 print(statesTemp)
 
@@ -995,7 +997,7 @@ for (i in nSteps:1){
   optionTemp_1=rep(NA,i)
   statesTemp=rep(NA,i)
   for (j in 1:i){
-    statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(i-1-(j-1))
+    statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(i-1-(j-1))
   }
   
   if (americanOption==TRUE){
@@ -1081,10 +1083,10 @@ underlying[seq(from = 1, to = Nspx, by = m_days),] %>%
 
 selectedTradeDate="2020-01-10"
 
-spotUndelryingSPX=underlying[underlying$TradeDate==selectedTradeDate,'SPX']
+spotUnderlyingSPX=underlying[underlying$TradeDate==selectedTradeDate,'SPX']
 volatilitySPX=underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPX']
 
-spotUndelryingSPX2 <- 
+spotUnderlyingSPX2 <- 
   underlying %>%
   filter(TradeDate==selectedTradeDate) %>%  
   select(SPX,TradeDate) 
@@ -1129,10 +1131,10 @@ underlying[seq(from = 1, to = Nspx, by = m_days),] %>%
 
 selectedTradeDate="2020-01-10"
 
-spotUndelryingSPY=underlying[underlying$TradeDate==selectedTradeDate,'SPY']
+spotUnderlyingSPY=underlying[underlying$TradeDate==selectedTradeDate,'SPY']
 volatilitySPY=underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPY']
 
-spotUndelryingSPY2 <- 
+spotUnderlyingSPY2 <- 
   underlying %>%
   filter(TradeDate==selectedTradeDate) %>%  
   select(SPY,TradeDate) 
