@@ -55,13 +55,17 @@ cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
 ```{r SPX loop for RandD}
 ################
 #linear regression
+nSteps=1000
+call_put=-1 #1 for call option, -1 for put option
+
 for (m in Dates){
   
-ttm=TTM <- unique(lmsample$ttm)
 
 lmsample <- 
   TESTsampleImpliedR %>% 
   filter(expiryDate==m)
+
+ttm=TTM <- unique(lmsample$ttm)
 
 resIR <- lm(strike ~ x,data = lmsample)
 
@@ -82,21 +86,17 @@ d=as.Date.numeric(m)
 print(paste('for SPX expiry in',m,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
 
 if (m==18278)
-  {TESTR <- lmsample} 
-else
-  {TESTR <- bind_rows(TESTR,lmsample)}
+  {TESTR <- lmsample}
+  #else
+    #{TESTR <- bind_rows(TESTR,lmsample)}
 
 ##########
-nSteps=2
-call_put=1 #1 for call option, -1 for put option
 
 interestRate=as.numeric(impliedR <- log(resIR$coefficients[2])/ttm) 
 
 dividendYield=as.numeric(impliedR-log(impliedSPXF/spotUnderlying)/ttm)
 
 volatility=volatilitySPX 
-
-
 
 spotUnderlying=spotUnderlyingSPX
 
@@ -114,53 +114,50 @@ aCRR=exp((interestRate-dividendYield)*(deltaT))
 
 pCRR=(aCRR-dCRR)/(uCRR-dCRR)
 
+####
 optionTemp=rep(NA,nSteps+1)
+statesTemp=rep(NA,nSteps+1)
+####
 
-
-for (n in strike){
-  TESTstrike <- n
-  
-  for (i in nSteps:1){
+####
+  for (n in strike){
+    TESTstrike <- n
     
-  optionTemp_1=rep(NA,i)
-  statesTemp=rep(NA,i)
-  s=(nSteps+1)
   
-    for (s in 1:i){
-      
-    statesTemp[s]=spotUnderlying*uCRR^(s-1)*dCRR^(i-1-(s-1))
-    }
-  
-  
+    for (j in 1:(nSteps+1)){
+      statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
+                            }
+####
     for (o in 1:(nSteps+1)){
-    optionTemp[o]=max((statesTemp[o]-TESTstrike)*call_put,0)
-    }  
+        optionTemp[o]=max((statesTemp[o]-TESTstrike)*call_put,0)
+                            }  
   
-  if (americanOption==TRUE){
+####    
+    for (i in nSteps:1){optionTemp_1=rep(NA,i)
+                        statesTemp=rep(NA,i)
+                        s=(nSteps+1)
     
-    for (j in 1:i){
-      
-      optionTemp_1[j]=max(((1-pCRR)*optionTemp[j]+pCRR*optionTemp[j+1])*exp(-interestRate*deltaT),(statesTemp[j]-TESTstrike)*call_put)
-      
-    }    
-  }  else{
+      for (s in 1:i){
+        statesTemp[s]=spotUnderlying*uCRR^(s-1)*dCRR^(i-1-(s-1))
+                    }
     
-    for (j in 1:i){
-      
-      optionTemp_1[j]=((1-pCRR)*optionTemp[j]+pCRR*optionTemp[j+1])*exp(-interestRate*deltaT)
-      
-    }     
-  }
+    if (americanOption==TRUE){
+      for (j in 1:i){
+        optionTemp_1[j]=max(((1-pCRR)*optionTemp[j]+pCRR*optionTemp[j+1])*exp(-interestRate*deltaT),(statesTemp[j]-TESTstrike)*call_put)
+                    }        }  
+    else{
+      for (j in 1:i){
+        optionTemp_1[j]=((1-pCRR)*optionTemp[j]+pCRR*optionTemp[j+1])*exp(-interestRate*deltaT)
+                    }     
+        }
+                    
+  optionTemp=optionTemp_1}
   
-optionTemp=optionTemp_1
-
-}
-
-cat('for option expiry at',paste(d),'when strike is',n,"Option price is: ",optionTemp,'\n')
-
   
-}
-
+  cat('for option expiry at',paste(d),'when strike is',n,"Option price is: ",optionTemp,'\n')
+  
+    
+                          }
 
 }
 
