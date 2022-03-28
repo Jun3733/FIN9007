@@ -1,0 +1,171 @@
+---
+title: "The big loop"
+author: "lbian01"
+date: '2022-03-28'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+selectedTradeDate="2020-01-10"
+
+spotUnderlyingSPX <- 
+  underlying %>% 
+  filter(TradeDate==selectedTradeDate) %>% 
+  select(SPX) %>% 
+  as.numeric()
+
+volatilitySPX <- 
+  underlying %>% 
+  filter(TradeDate==selectedTradeDate) %>% 
+  select(stdAnnualSPX) %>% 
+  as.numeric()
+
+```
+
+```{r 3.1.1 state price at expiry}
+
+statesTemp=rep(NA,nSteps+1)
+
+for (j in 1:(nSteps+1)){
+  statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
+}
+
+
+```
+
+###### option price at expiry
+```{r 3.1.1 option price at expiry}
+# note: nSetps=2
+optionTemp=rep(NA,nSteps+1)
+for (j in 1:(nSteps+1)){
+  optionTemp[j]=max((statesTemp[j]-strike)*call_put,0)
+}  
+cat("state price at step ",nSteps+1," is: ",statesTemp,'\n') 
+cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
+
+```
+
+###### Trade Date 2020-01-20 SPX cross section
+
+```{r SPX loop for RandD}
+################
+#linear regression
+for (m in Dates){
+  
+ttm=TTM <- unique(lmsample$ttm)
+
+lmsample <- 
+  TESTsampleImpliedR %>% 
+  filter(expiryDate==m)
+
+resIR <- lm(strike ~ x,data = lmsample)
+
+
+impliedSPXF <- resIR$coefficients[1]
+
+impliedR <- log(resIR$coefficients[2])/ttm
+
+impliedDividend <- impliedR-log(impliedSPXF/spotUnderlying)/ttm
+
+lmsample <- 
+  lmsample %>% 
+  mutate(impliedSPXF=resIR$coefficients[1],
+         impliedR=log(resIR$coefficients[2])/ttm) %>% 
+  mutate(impliedDividend=impliedR-log(impliedSPXF/spotUnderlying)/ttm) 
+
+d=as.Date.numeric(m)
+print(paste('for SPX expiry in',m,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
+
+if (m==18278)
+  {TESTR <- lmsample} 
+else
+  {TESTR <- bind_rows(TESTR,lmsample)}
+
+##########
+nSteps=2
+call_put=1 #1 for call option, -1 for put option
+
+interestRate=as.numeric(impliedR <- log(resIR$coefficients[2])/ttm) 
+
+dividendYield=as.numeric(impliedR-log(impliedSPXF/spotUnderlying)/ttm)
+
+volatility=volatilitySPX 
+
+
+
+spotUnderlying=spotUnderlyingSPX
+
+strike=Strikes <- unique(lmsample$strike)
+
+americanOption=FALSE
+
+deltaT=ttm/nSteps
+
+uCRR=exp(volatility*sqrt(deltaT))
+
+dCRR=exp(-volatility*sqrt(deltaT))
+
+aCRR=exp((interestRate-dividendYield)*(deltaT))
+
+pCRR=(aCRR-dCRR)/(uCRR-dCRR)
+
+optionTemp=rep(NA,nSteps+1)
+
+
+for (n in strike){
+  TESTstrike <- n
+  
+  for (i in nSteps:1){
+    
+  optionTemp_1=rep(NA,i)
+  statesTemp=rep(NA,i)
+  s=(nSteps+1)
+  
+    for (s in 1:i){
+      
+    statesTemp[s]=spotUnderlying*uCRR^(s-1)*dCRR^(i-1-(s-1))
+    }
+  
+  
+    for (o in 1:(nSteps+1)){
+    optionTemp[o]=max((statesTemp[o]-TESTstrike)*call_put,0)
+    }  
+  
+  if (americanOption==TRUE){
+    
+    for (j in 1:i){
+      
+      optionTemp_1[j]=max(((1-pCRR)*optionTemp[j]+pCRR*optionTemp[j+1])*exp(-interestRate*deltaT),(statesTemp[j]-TESTstrike)*call_put)
+      
+    }    
+  }  else{
+    
+    for (j in 1:i){
+      
+      optionTemp_1[j]=((1-pCRR)*optionTemp[j]+pCRR*optionTemp[j+1])*exp(-interestRate*deltaT)
+      
+    }     
+  }
+  
+optionTemp=optionTemp_1
+
+}
+
+cat('for option expiry at',paste(d),'when strike is',n,"Option price is: ",optionTemp,'\n')
+
+  
+}
+
+
+}
+
+
+#view(TESTR)
+
+
+```

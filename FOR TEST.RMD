@@ -99,17 +99,17 @@ TESTpaired <-
 TESTsampleImpliedR <- 
   TESTpaired %>% 
   mutate(x=putPrice-callPrice) %>% 
-  select(Kttm,expiryDate,ttm,strike,x,SPX) %>% 
+  select(Kttm,expiryDate,ttm,strike,x) %>% 
   arrange(expiryDate) %>% 
   data.frame()
 
-Dates <- unique(sampleImpliedR$expiryDate)
+Dates <- unique(TESTsampleImpliedR$expiryDate)
 
 ```
 
 
 
-```{r}
+```{r SPX loop for RandD}
 #linear regression
 
 for (i in Dates){
@@ -136,6 +136,7 @@ lmsample <-
   mutate(impliedDividend=impliedR-log(impliedSPXF/spotUnderlying)/ttm) 
 
 d=as.Date.numeric(i)
+
 print(paste('for SPX expiry in',d,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
 
 if (i==18278){
@@ -163,7 +164,7 @@ volatility=volatilitySPX <- underlying[underlying$TradeDate==selectedTradeDate,'
 
 ttm=TTM <- unique(lmsample$ttm)
 
-spotUnderlying=spotUnderlyingSPX=underlying[underlying$TradeDate==selectedTradeDate,'SPX']
+spotUnderlying=spotUnderlyingSPX
 
 strike=Strikes <- unique(lmsample$strike)
 
@@ -212,3 +213,8 @@ for (i in nSteps:1){
 cat("Option price is: ",optionTemp)
 
 ```
+
+
+
+
+

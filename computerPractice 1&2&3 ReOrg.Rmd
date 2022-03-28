@@ -657,7 +657,7 @@ ggplot(pairedOptions,aes(x=strike,y=impliedSPXF))+
 
 ###### get the corresponding index level
 
-```{r 2.1 spotUnderlying}
+```{r 2.1 spotUnderlying, eval=FALSE, include=FALSE}
 
 underlying3 <- read.csv("./sampleData/underlyingSampleData.csv", header=T,as.is = T)
 
@@ -672,6 +672,12 @@ spotUnderlying <- underlying3[underlying3$TradeDate=="2020-01-10",'SPX'] # why h
 ###### get the corresponding futures price
 
 ```{r 2.1 load futures price}
+
+spotUnderlying <- 
+  underlying %>% 
+  filter(TradeDate=="2020-01-10") %>% 
+  select(SPX) %>% 
+  as.numeric()
 
 spEminiCross <- read.csv("./sampleData/spxEminiTrade20200110.csv", header=T,as.is = T,check.names=FALSE)
 
@@ -1083,19 +1089,27 @@ underlying[seq(from = 1, to = Nspx, by = m_days),] %>%
 
 selectedTradeDate="2020-01-10"
 
-spotUnderlyingSPX=underlying[underlying$TradeDate==selectedTradeDate,'SPX']
-volatilitySPX=underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPX']
+#spotUnderlyingSPX=underlying[underlying$TradeDate==selectedTradeDate,'SPX']
 
-spotUnderlyingSPX2 <- 
-  underlying %>%
-  filter(TradeDate==selectedTradeDate) %>%  
-  select(SPX,TradeDate) 
+#volatilitySPX=underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPX']
 
-volatilitySPX2 <- 
+spotUnderlyingSPX <- 
   underlying %>% 
   filter(TradeDate==selectedTradeDate) %>% 
-  select(stdAnnualSPX,TradeDate)
-  
+  select(SPX) %>% 
+  as.numeric()
+
+
+#volatilitySPY=underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPY']
+
+volatilitySPX <- 
+  underlying %>% 
+  filter(TradeDate==selectedTradeDate) %>% 
+  select(stdAnnualSPX) %>% 
+  as.numeric()
+
+
+
 ```
 
 
@@ -1129,21 +1143,26 @@ underlying[seq(from = 1, to = Nspx, by = m_days),] %>%
 ###### SPY volatility for binomial tree
 ```{r 3.1.4 SPY vloatility binomial tree}
 
-selectedTradeDate="2020-01-10"
+cat(paste(selectedTradeDate))
 
-spotUnderlyingSPY=underlying[underlying$TradeDate==selectedTradeDate,'SPY']
-volatilitySPY=underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPY']
+#spotUnderlyingSPY=underlying[underlying$TradeDate==selectedTradeDate,'SPY']
 
-spotUnderlyingSPY2 <- 
-  underlying %>%
-  filter(TradeDate==selectedTradeDate) %>%  
-  select(SPY,TradeDate) 
-
-volatilitySPY2 <- 
+spotUnderlyingSPY <- 
   underlying %>% 
   filter(TradeDate==selectedTradeDate) %>% 
-  select(stdAnnualSPY,TradeDate)
-  
+  select(SPY) %>% 
+  as.numeric()
+
+
+#volatilitySPY=underlying[underlying$TradeDate==selectedTradeDate,'stdAnnualSPY']
+
+volatilitySPY <- 
+  underlying %>% 
+  filter(TradeDate==selectedTradeDate) %>% 
+  select(stdAnnualSPY) %>% 
+  as.numeric()
+
+
 ```
 
 # 需要参数对照进行一个二叉树的跑，以及跑多少次这个问题不确定
