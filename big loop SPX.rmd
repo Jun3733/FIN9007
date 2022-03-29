@@ -56,9 +56,10 @@ cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
 ################
 #linear regression
 nSteps=1000
-call_put=-1 #1 for call option, -1 for put option
+call_put=-1#1 for call option, -1 for put option
 
 for (m in Dates){
+cnt <- 0
   
 
 lmsample <- 
@@ -85,10 +86,7 @@ lmsample <-
 d=as.Date.numeric(m)
 print(paste('for SPX expiry in',m,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
 
-if (m==18278)
-  {TESTR <- lmsample}
-  #else
-    #{TESTR <- bind_rows(TESTR,lmsample)}
+
 
 ##########
 
@@ -117,13 +115,12 @@ pCRR=(aCRR-dCRR)/(uCRR-dCRR)
 ####
 optionTemp=rep(NA,nSteps+1)
 statesTemp=rep(NA,nSteps+1)
-####
+TreePrice=rep(NA,length(strike))
 
 ####
   for (n in strike){
     TESTstrike <- n
-    
-  
+
     for (j in 1:(nSteps+1)){
       statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
                             }
@@ -153,12 +150,22 @@ statesTemp=rep(NA,nSteps+1)
                     
   optionTemp=optionTemp_1}
   
+  cnt <- cnt+1
   
-  cat('for option expiry at',paste(d),'when strike is',n,"Option price is: ",optionTemp,'\n')
+  #cat('Loop',paste(cnt),'is for option expiry at',paste(d),'when strike is',n,"Option price is: ",optionTemp,'\n')
   
-    
-                          }
+  
+  
+  TreePrice[cnt] <- optionTemp
+                    }
+lmsample <- 
+  lmsample %>% 
+  mutate(Tree=TreePrice)
 
+if (m==18278)
+  {TESTResult <- lmsample}
+  else
+    {TESTResult <- bind_rows(TESTR,lmsample)}
 }
 
 
