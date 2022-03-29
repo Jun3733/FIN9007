@@ -1069,7 +1069,6 @@ for (i in ((m_days+1):Nspx)){
       )^2)
   
 }
-underlying$stdAnnual=(underlying$varspx*252/m_days)^0.5
 
 
 #mutate std Annual

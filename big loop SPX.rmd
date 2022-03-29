@@ -28,6 +28,7 @@ volatilitySPX <-
 ```
 
 ```{r 3.1.1 state price at expiry}
+nSteps=1000
 
 statesTemp=rep(NA,nSteps+1)
 
@@ -44,7 +45,10 @@ for (j in 1:(nSteps+1)){
 optionTemp=rep(NA,nSteps+1)
 for (j in 1:(nSteps+1)){
   optionTemp[j]=max((statesTemp[j]-strike)*call_put,0)
-}  
+}
+
+
+
 cat("state price at step ",nSteps+1," is: ",statesTemp,'\n') 
 cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
 
@@ -122,7 +126,7 @@ TreePrice=rep(NA,length(strike))
     TESTstrike <- n
 
     for (j in 1:(nSteps+1)){
-      statesTemp[j]=spotUndelrying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
+      statesTemp[j]=spotUnderlying*uCRR^(j-1)*dCRR^(nSteps-(j-1))
                             }
 ####
     for (o in 1:(nSteps+1)){
