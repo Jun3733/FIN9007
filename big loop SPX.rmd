@@ -165,7 +165,7 @@ lmsample <-
 if (m==18278)
   {TESTResult <- lmsample}
   else
-    {TESTResult <- bind_rows(TESTR,lmsample)}
+    {TESTResult <- bind_rows(TESTResult,lmsample)}
 }
 
 
