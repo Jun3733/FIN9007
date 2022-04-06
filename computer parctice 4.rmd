@@ -45,7 +45,7 @@ spotUndelrying=spotUnderlyingSPX
 nSteps=1*252
 
 volatility=volatility
-muGBM=impliedDividend#where μ is the stock’s expected rate of return
+muGBM=impliedDividend #where μ is the stock’s expected rate of return
 
 rnorm(1)*sqrt(deltaT)
 nTimes=100000
@@ -121,7 +121,7 @@ kurtosis(simulatedEndSample)
 
 
 
-###### Geometric Brownian motion (GBM)
+###### 
 ```{r }
 
 

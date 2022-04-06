@@ -1,0 +1,64 @@
+---
+title: "BSM only"
+output: html_document
+date: '2022-04-06'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r 5.1 load para}
+
+volatility=0.2
+deltaT=1/252/1
+spotUndelrying=810
+nSteps=1*252
+
+rnorm(1)*sqrt(deltaT)
+
+strike=800
+interestRate=0.05
+dividendYield=0.02
+call_put=1 # 1 for all, -1 for put
+muGBM=interestRate-dividendYield
+nTimes=100000
+
+```
+
+
+### bsm model
+
+
+```{r}
+
+ttm=deltaT*nSteps
+
+d1=
+  (log(spotUndelrying/strike)+(interestRate-dividendYield+volatility^2/2))*ttm/(volatility*sqrt(ttm))
+
+d2=d1-volatility*sqrt(ttm)
+
+
+callPrice=
+  spotUndelrying*exp(-dividendYield*ttm)*pnorm(d1)-strike*exp(-interestRate*ttm)*pnorm(d2)
+
+putPrice=
+  strike*exp(-interestRate*ttm)*pnorm(-d2)-spotUndelrying*exp(-dividendYield*ttm)*pnorm(-d1)
+
+
+```
+
+###### examine put call parity
+
+```{r}
+
+leftside<- 
+  callPrice+strike*exp(-interestRate*ttm)
+
+rightside <- 
+  spotUndelrying*exp(-dividendYield*ttm)+putPrice
+
+leftside==rightside
+```

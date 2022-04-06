@@ -4,7 +4,6 @@ author: "lbian01"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 css: hw.css
-
 ---
 
 ```{r setup, include=FALSE}
@@ -35,7 +34,6 @@ Modes <- function(x) {
   ux[tab == max(tab)]
 }
 ```
-
 
 ```{r load all data, include=FALSE}
 
@@ -164,7 +162,6 @@ kurtosis(selectedUnderlying$logRetSPX)
 jarque.bera.test(selectedUnderlying$logRetSPX)
 ```
 
-
 ```{r 1..1.1 SPX hist plot}
 
 selectedUnderlying %>% 
@@ -186,8 +183,8 @@ lines(xAxis,dnorm(xAxis, mean(selectedUnderlying$logRetSPX), sqrt(var(selectedUn
 
 ```
 
-
 ##### 1.1.2 Summary of SPY log return
+
 ```{r 1.1.2 plot SPY}
 
 selectedUnderlying %>% 
@@ -218,9 +215,7 @@ lines(xAxis,dnorm(xAxis, mean(selectedUnderlying$logRetSPX), sqrt(var(selectedUn
 
 ```
 
-
-
-##### 1.1.3 Summary of SPX option 
+##### 1.1.3 Summary of SPX option
 
 ```{r 1.1.3 SPXOpt hist}
 Modes(spxOptionCross$expiryDate)
@@ -240,7 +235,6 @@ spxOptionCross <-
   
 ```
 
-
 ```{r 1.1.3 Sum SPXOpt}
 #call
 SPXCall <- 
@@ -259,6 +253,7 @@ SPXPut <-
 summary(SPXPut)
 
 ```
+
 ```{r 1.1.3 SPXOpt c-p plot}
 
 ggplot()+
@@ -268,7 +263,7 @@ ggplot()+
 
 ```
 
-##### 1.1.4 Summary of SPY option 
+##### 1.1.4 Summary of SPY option
 
 ```{r 1.1.4 SPYOpt hist}
 Modes(spyOptionCross$expiryDate)
@@ -288,7 +283,6 @@ spyOptionCross <-
   
 ```
 
-
 ```{r 1.1.4 Sum SPYOpt}
 #call
 SPYCall <- 
@@ -307,6 +301,7 @@ SPYPut <-
 summary(SPYPut)
 
 ```
+
 ```{r 1.1.4 SPYOpt c-p plot}
 
 ggplot()+
@@ -316,10 +311,7 @@ ggplot()+
 
 ```
 
-
-
-
-##### 1.1.5 Summary of SPXEx option 
+##### 1.1.5 Summary of SPXEx option
 
 ```{r 1.1.5 SPXOpt hist}
 Modes(spxOptionPD$TradeDate)
@@ -340,7 +332,6 @@ spxOptionPD <-
   
 ```
 
-
 ```{r 1.1.5 Sum SPXOpt}
 #call
 SPXCallEx <- 
@@ -359,6 +350,7 @@ SPXPutEx <-
 summary(SPXPutEx)
 
 ```
+
 ```{r 1.1.5 SPXOpt c-p plot}
 
 ggplot()+
@@ -368,10 +360,7 @@ ggplot()+
 
 ```
 
-
-
-##### 1.1.6 Summary of SPYEx option 
-
+##### 1.1.6 Summary of SPYEx option
 
 ```{r 1.1.6 SPYOpt hist}
 Modes(spyOptionPD$TradeDate)
@@ -390,7 +379,6 @@ spyOptionPD <-
 
   
 ```
-
 
 ```{r 1.1.6 Sum SPYOpt}
 #CallEx
@@ -420,17 +408,8 @@ ggplot()+
 
 ```
 
-
-
-
-
-
-
-
-
-
-
 ##### 1.1.7 Summary of SPXEmini TS
+
 ```{r 1.1.7 }
 
 summary(spEminiTS)
@@ -442,7 +421,6 @@ spEminiTS %>%
 ```
 
 #### *1.2 Present and comment on the relationship between S&P 500 index and SDPR ETF. (5%)*
-
 
 ```{r 1.2 plot spx-spy}
 
@@ -475,10 +453,7 @@ selectedUnderlying %>%
 
 ```
 
-
-
 line 65
-
 
 #### *1.3 Use time series of S&P 500 futures prices, present and comment the relationship between S&P 500 futures and S&P 500 index level. (5%)*
 
@@ -518,8 +493,6 @@ spEminiTS %>%
 ```
 
 line 96
-
-
 
 #### *2.1 Estimate the put-call parity implied underlying asset price. Compare the put-call parity implied underlying asset price with the S&P 500 index level and S&P 500 futures price. Calculate put-call parity implied interest rate and dividend yield. Does put-call parity implied underlying asset price always move in the same direction as the S&P 500 index level? (15%)*
 
@@ -712,11 +685,7 @@ impliedSPX <- mean(pairedOptions$impliedSPX)
 
 ```
 
-
-
-
 #### *2.2 Compare option price bounds and the market option prices. Does option prices within the theoretical bounds? Is there an arbitrage opportunity? (5%)*
-
 
 ##### call options
 
@@ -760,7 +729,6 @@ putOptionData %>%
   geom_line(aes(y=lowerBound,colour="lowerBound"))
 
 ```
-
 
 #### *3.1 Use binomial tree model, calculate both SPX and SPY option prices. Are option prices calculated from the binomial tree model consistent with market option prices? (10%)*
 
@@ -806,6 +774,7 @@ print(statesTemp)
 ```
 
 ###### option price at expiry
+
 ```{r 3.1.1 option price at expiry}
 # note: nSetps=2
 optionTemp=rep(NA,nSteps+1)
@@ -816,6 +785,7 @@ cat("state price at step ",nSteps+1," is: ",statesTemp,'\n')
 cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
 
 ```
+
 ###### state price and option price at each node
 
 ```{r 3.1.1 each node price}
@@ -849,14 +819,13 @@ cat("Option price is: ",optionTemp)
 
 ##### 3.1.2 stock with continuous dividend yield 1000 steps
 
-$u=e^{\sigma \sqrt{\bigtriangleup t} } $
+$u=e^{\sigma \\sqrt{\bigtriangleup t} }$
 
-$d=e^{-\sigma \sqrt{\bigtriangleup t} } $
+$d=e^{-\sigma \sqrt{\bigtriangleup t} }$
 
-$p=\frac{a-d}{u-d} $
+$p=\frac{a-d}{u-d}$
 
-$a=e^{r\bigtriangleup t } $
-
+$a=e^{r\bigtriangleup t }$
 
 ```{r 3.1.2 EUR-CALL load parameters}
 nSteps=1000
@@ -883,8 +852,8 @@ aCRR=exp((interestRate-dividendYield)*(deltaT))
 pCRR=(aCRR-dCRR)/(uCRR-dCRR)
 ```
 
-
 ###### state price at expiry
+
 ```{r 3.1.2 state price at expiry}
 
 statesTemp=rep(NA,nSteps+1)
@@ -940,7 +909,6 @@ cat("Option price is: ",optionTemp)
 
 ```
 
-
 ##### 3.1.3 futures
 
 ```{r 3.1.3 AME-PUT load parameters}
@@ -982,7 +950,6 @@ print(statesTemp)
 ```
 
 ###### option price at expiry
-
 
 ```{r 3.1.3 option price at expiry}
 
@@ -1027,11 +994,7 @@ cat("Option price is: ",optionTemp)
 
 ```
 
-
 ##### 3.1.4 historical volatility
-
-
-
 
 ```{r 3.1.4 Read Underlying, eval=FALSE, include=FALSE}
 
@@ -1054,8 +1017,8 @@ underlying4 <- underlying4 %>%
 
 ```
 
-
 ###### SPX (data pre loaded, ret pre calculated,see 1.1)
+
 ```{r 3.1.4 SPX set parameters}
 
 underlying$varspx=NA
@@ -1084,6 +1047,7 @@ underlying[seq(from = 1, to = Nspx, by = m_days),] %>%
 ```
 
 ###### SPX volatility for binomial tree
+
 ```{r 3.1.4 SPX vloatility binomial tree}
 
 selectedTradeDate="2020-01-10"
@@ -1111,9 +1075,8 @@ volatilitySPX <-
 
 ```
 
-
-
 ###### SPY (data pre loaded, ret pre caled,see 1.1)
+
 ```{r 3.1.4 SPY set parameters}
 
 underlying$varspy=NA
@@ -1140,6 +1103,7 @@ underlying[seq(from = 1, to = Nspx, by = m_days),] %>%
 ```
 
 ###### SPY volatility for binomial tree
+
 ```{r 3.1.4 SPY vloatility binomial tree}
 
 cat(paste(selectedTradeDate))
@@ -1165,6 +1129,7 @@ volatilitySPY <-
 ```
 
 # 需要参数对照进行一个二叉树的跑，以及跑多少次这个问题不确定
+
 #### Dataset Explanation
 
 > *Underlying* = S&P500 + SDPR ETF (SPY column) trade from `r min(underlying$TradeDate)` to `r max(underlying$TradeDate)`
