@@ -58,6 +58,10 @@ cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
 
 ```{r SPX loop for RandD}
 ################
+timestart<-Sys.time()
+
+
+
 #linear regression
 nSteps=1000
 call_put=-1#1 for call option, -1 for put option
@@ -86,6 +90,7 @@ lmsample <-
   mutate(impliedSPXF=resIR$coefficients[1],
          impliedR=log(resIR$coefficients[2])/ttm) %>% 
   mutate(impliedDividend=impliedR-log(impliedSPXF/spotUnderlying)/ttm) 
+
 
 d=as.Date.numeric(m)
 print(paste('for SPX expiry in',d,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
@@ -173,7 +178,11 @@ if (m==18278)
 }
 
 
-#view(TESTR)
+#output time usage
+timeend<-Sys.time()
 
+runningtime<-timeend-timestart
+
+print(runningtime)
 
 ```

@@ -10,59 +10,119 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### *4.1 Choose a trading date, use Wiener process, Generalized Wiener process (Brownian motion), and Geometric Brownian motion (GBM), to simulate future S&P 500 index level, and plot the distribution at expiry. Comment whether those stochastic processes well describe the index movement. (5%)*
 
-```{r 4.1 loda parameter}
+```{r 4.1 load parameter}
 
 m=as.numeric(as.Date(selectedExpiry))
 
+# 提取选定日期数据生成子集
 
 lmsample <- 
   TESTsampleImpliedR %>% 
   filter(expiryDate==m)
 
+#计算相应参数
 ttm=TTM <- unique(lmsample$ttm)
 
 resIR <- lm(strike ~ x,data = lmsample)
 
-
-impliedSPXF <- resIR$coefficients[1]
-
-impliedR <- log(resIR$coefficients[2])/ttm
-
 impliedDividend <- impliedR-log(impliedSPXF/spotUnderlying)/ttm
 
-lmsample <- 
-  lmsample %>% 
-  mutate(impliedSPXF=resIR$coefficients[1],
-         impliedR=log(resIR$coefficients[2])/ttm) %>% 
-  mutate(impliedDividend=impliedR-log(impliedSPXF/spotUnderlying)/ttm) 
 
 
 d=as.Date.numeric(m)
 
-print(paste('for SPX expiry in',d,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
-
+print(paste('for SPX expiry in',d,'we have volatility=',volatilitySPX,'and Dividend=  ',impliedDividend))
 
 ##########
 
-interestRate=as.numeric(impliedR <- log(resIR$coefficients[2])/ttm) 
+```
 
-dividendYield=as.numeric(impliedR-log(impliedSPXF/spotUnderlying)/ttm)
+###### Geometric Brownian motion (GBM)
+```{r 4.1.3 GBM inputs}
 
-volatility=volatilitySPX 
+deltaT=1/252/1
+spotUndelrying=spotUnderlyingSPX
+nSteps=1*252
 
-spotUnderlying=spotUnderlyingSPX
+volatility=volatility
+muGBM=impliedDividend#where μ is the stock’s expected rate of return
 
-strike=Strikes <- unique(lmsample$strike)
+rnorm(1)*sqrt(deltaT)
+nTimes=100000
 
-deltaT=ttm/nSteps
 
+cat(paste(spotUndelrying,volatility,muGBM))
 
-cat(paste(volatility,deltaT，nSteps,spotUnderlyingSPX))
 ```
 
 
-```{r}
+```{r 4.1.3 GBM simulate}
+spotUndelrying_t=rep(NA,nSteps)
 
+spotUndelrying_t[1]=spotUndelrying
+
+for (i in 2:nSteps){
+  spotUndelrying_t[i]=
+    spotUndelrying_t[i-1]+muGBM*spotUndelrying_t[i-1]*deltaT+volatility*spotUndelrying_t[i-1]*rnorm(1)*sqrt(deltaT)
+}
+
+
+plot(spotUndelrying_t, type="l")
+
+```
+
+```{r 4.1.3 simulateNtimes}
+# simulate N times
+spotUndelryingMatrix=matrix(NA, nrow = nSteps, ncol = nTimes)
+spotUndelryingMatrix[1,]=spotUndelrying
+trials <- seq(1, nTimes)
+for (i in 1:nTimes){
+  for (j in 2:nSteps){
+    spotUndelryingMatrix[j,i]=spotUndelryingMatrix[j-1,i]+muGBM*spotUndelryingMatrix[j-1,i]*deltaT+volatility*spotUndelryingMatrix[j-1,i]*rnorm(1)*sqrt(deltaT)
+  }
+}
+
+
+simulatedEndSample=spotUndelryingMatrix[nSteps,]
+
+# density 
+hist(simulatedEndSample, breaks = 100)
+d <- density(simulatedEndSample)
+d
+plot(d)
+
+
+```
+
+```{r 4.1.3 density}
+
+hist(simulatedEndSample, breaks = 100)
+d <- density(simulatedEndSample)
+d
+plot(d)
+
+
+
+simulatedEndSample %>% 
+  ggplot(aes(x=logRetSPX))+
+  geom_histogram(bins = 100,fill="#69b3a2",color="#e9ecef")+
+  geom_density(color='red')
+
+```
+
+```{r 4.1.3 moments}
+
+mean(simulatedEndSample)
+sqrt(var(simulatedEndSample))
+skewness(simulatedEndSample)
+kurtosis(simulatedEndSample)
+
+```
+
+
+
+###### Geometric Brownian motion (GBM)
+```{r }
 
 
 ```

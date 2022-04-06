@@ -109,8 +109,10 @@ Dates <- unique(TESTsampleImpliedR$expiryDate)
 
 
 
-```{r SPX loop for RandD}
+#```{r SPX loop for RandD}
 #linear regression
+
+
 
 for (i in Dates){
 
@@ -150,9 +152,11 @@ if (i==18278){
 #view(TESTR)
 
 
-```
+```#
 
-```{r}
+
+
+#```{r}
 nSteps=1000
 call_put=1 #1 for call option, -1 for put option
 
@@ -179,7 +183,7 @@ dCRR=exp(-volatility*sqrt(deltaT))
 aCRR=exp((interestRate-dividendYield)*(deltaT))
 
 pCRR=(aCRR-dCRR)/(uCRR-dCRR)
-```
+```#
 
 
 
@@ -187,7 +191,7 @@ pCRR=(aCRR-dCRR)/(uCRR-dCRR)
 
 ###### state price and option price at each node
 
-```{r 3.1.2 each node}
+#```{r 3.1.2 each node}
 
 for (i in nSteps:1){
   optionTemp_1=rep(NA,i)
@@ -212,7 +216,7 @@ for (i in nSteps:1){
 
 cat("Option price is: ",optionTemp)
 
-```
+```#
 
 
 
