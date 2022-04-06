@@ -88,7 +88,7 @@ lmsample <-
   mutate(impliedDividend=impliedR-log(impliedSPXF/spotUnderlying)/ttm) 
 
 d=as.Date.numeric(m)
-print(paste('for SPX expiry in',m,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
+print(paste('for SPX expiry in',d,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
 
 
 

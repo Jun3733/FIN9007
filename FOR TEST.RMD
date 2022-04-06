@@ -84,7 +84,7 @@ TESTcall <-
 TESTpaired <- 
   TESTcall %>% 
   left_join(TESTput[,c('Kttm','putPrice')],by='Kttm') %>% 
-  select(-c(c_p,FrequencyStrike,X))
+  select(-c(c_p,X))
 
 #worning
 #underlying only has data till 2020-12-31

@@ -1,0 +1,69 @@
+---
+title: "From 4"
+output: html_document
+date: '2022-04-06'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### *4.1 Choose a trading date, use Wiener process, Generalized Wiener process (Brownian motion), and Geometric Brownian motion (GBM), to simulate future S&P 500 index level, and plot the distribution at expiry. Comment whether those stochastic processes well describe the index movement. (5%)*
+
+```{r 4.1 loda parameter}
+
+m=as.numeric(as.Date(selectedExpiry))
+
+
+lmsample <- 
+  TESTsampleImpliedR %>% 
+  filter(expiryDate==m)
+
+ttm=TTM <- unique(lmsample$ttm)
+
+resIR <- lm(strike ~ x,data = lmsample)
+
+
+impliedSPXF <- resIR$coefficients[1]
+
+impliedR <- log(resIR$coefficients[2])/ttm
+
+impliedDividend <- impliedR-log(impliedSPXF/spotUnderlying)/ttm
+
+lmsample <- 
+  lmsample %>% 
+  mutate(impliedSPXF=resIR$coefficients[1],
+         impliedR=log(resIR$coefficients[2])/ttm) %>% 
+  mutate(impliedDividend=impliedR-log(impliedSPXF/spotUnderlying)/ttm) 
+
+
+d=as.Date.numeric(m)
+
+print(paste('for SPX expiry in',d,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
+
+
+##########
+
+interestRate=as.numeric(impliedR <- log(resIR$coefficients[2])/ttm) 
+
+dividendYield=as.numeric(impliedR-log(impliedSPXF/spotUnderlying)/ttm)
+
+volatility=volatilitySPX 
+
+spotUnderlying=spotUnderlyingSPX
+
+strike=Strikes <- unique(lmsample$strike)
+
+deltaT=ttm/nSteps
+
+
+cat(paste(volatility,deltaT，nSteps,spotUnderlyingSPX))
+```
+
+
+```{r}
+
+
+
+```
+
