@@ -29,7 +29,7 @@ volatilitySPX <-
 ```
 
 ```{r 3.1.1 state price at expiry}
-nSteps=100
+nSteps=2
 
 statesTemp=rep(NA,nSteps+1)
 
@@ -47,8 +47,6 @@ optionTemp=rep(NA,nSteps+1)
 for (j in 1:(nSteps+1)){
   optionTemp[j]=max((statesTemp[j]-strike)*call_put,0)
 }
-
-
 
 cat("stock price at step ",nSteps+1," is: ",statesTemp,'\n') 
 cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
