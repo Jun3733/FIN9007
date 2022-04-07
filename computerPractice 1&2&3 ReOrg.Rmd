@@ -733,7 +733,7 @@ putOptionData %>%
 #### *3.1 Use binomial tree model, calculate both SPX and SPY option prices. Are option prices calculated from the binomial tree model consistent with market option prices? (10%)*
 
 ##### 3.1.1 Stock with continuous dividend yield
-
+###before running the loop, using fake number to assign values first.
 ```{r 3.1.1 EUR-CALL load in parameter}
 
 nSteps=2

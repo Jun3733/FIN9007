@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 
@@ -28,7 +29,7 @@ volatilitySPX <-
 ```
 
 ```{r 3.1.1 state price at expiry}
-nSteps=1000
+nSteps=100
 
 statesTemp=rep(NA,nSteps+1)
 
@@ -49,7 +50,7 @@ for (j in 1:(nSteps+1)){
 
 
 
-cat("state price at step ",nSteps+1," is: ",statesTemp,'\n') 
+cat("stock price at step ",nSteps+1," is: ",statesTemp,'\n') 
 cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
 
 ```
@@ -63,7 +64,7 @@ timestart<-Sys.time()
 
 
 #linear regression
-nSteps=1000
+nSteps=100
 call_put=-1#1 for call option, -1 for put option
 
 for (m in Dates){
