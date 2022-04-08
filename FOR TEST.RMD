@@ -31,19 +31,19 @@ spyOptionCross <-
 
 #Call Option
 
-TESTcall <- spxOptionCross %>% 
+TESTcall <- spyOptionCross %>% 
   filter(c_p==1) %>% 
   rename(callPrice=price) %>% 
-  mutate(Kttm=ttm+strike) %>% 
+  mutate(Kttm=ttm/10+strike) %>% 
   arrange(Kttm) %>% 
   data.frame()
 
 #Put Option
 
-TESTput <- spxOptionCross %>% 
+TESTput <- spyOptionCross %>% 
   filter(c_p==0) %>% 
   rename(putPrice=price) %>% 
-  mutate(Kttm=ttm+strike) %>% 
+  mutate(Kttm=ttm/10+strike) %>% 
   arrange(Kttm) %>% 
   data.frame()
 
@@ -103,7 +103,9 @@ TESTsampleImpliedR <-
   arrange(expiryDate) %>% 
   data.frame()
 
-Dates <- unique(TESTsampleImpliedR$expiryDate)
+DatesSPY <- unique(TESTsampleImpliedR$expiryDate)
+
+DatesSPY <- DatesSPY[-1]
 
 ```
 

@@ -53,7 +53,7 @@ cat("Option price at step ",nSteps+1," is: ",optionTemp,'\n')
 
 ```
 
-###### Trade Date 2020-01-20 SPX cross section
+###### Trade Date 2020-01-20 SPY cross section
 
 ```{r SPY loop for RandD}
 ################
@@ -65,7 +65,7 @@ timestart<-Sys.time()
 nSteps=100
 call_put=-1#1 for call option, -1 for put option
 
-for (m in Dates){
+for (m in DatesSPY){
 cnt <- 0
   
 
@@ -166,6 +166,8 @@ TreePrice=rep(NA,length(strike))
   
   TreePrice[cnt] <- optionTemp
                     }
+
+
 lmsample <- 
   lmsample %>% 
   mutate(Tree=TreePrice)

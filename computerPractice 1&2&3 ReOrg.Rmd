@@ -501,6 +501,9 @@ line 96
 spxOptionCross=read.csv("./sampleData/spxOptionData20200110.csv", #check.names=FALSE,
                colClasses=c("numeric","character","character",rep("numeric",3)))
 
+spyOptionCross=read.csv("./sampleData/spyOptionData20200110.csv", #check.names=FALSE,
+               colClasses=c("numeric","character","character",rep("numeric",3)))
+
 ```
 
 ```{r 2.1 TransDate, eval=FALSE, include=FALSE}
@@ -509,6 +512,12 @@ spxOptionCross$TradeDate %<>%
   as.Date("%Y%m%d")
 
 spxOptionCross$expiryDate %<>% 
+  as.Date("%Y%m%d")
+
+spyOptionCross$TradeDate %<>% 
+  as.Date("%Y%m%d")
+
+spyOptionCross$expiryDate %<>% 
   as.Date("%Y%m%d")
 
 ```
@@ -520,8 +529,18 @@ sort(unique(spxOptionCross$expiryDate))
 
 selectedExpiry <- "2020-06-19"#select from sort?
 
-oneExpiryOptionData <- 
+oneExpiryOptionDataspx <- 
   spxOptionCross %>% 
+  filter(expiryDate==selectedExpiry)
+
+#spyOptionCross %<>%   arrange(expiryDate)
+
+sort(unique(spyOptionCross$expiryDate))
+
+selectedExpiry <- "2020-06-19"#select from sort?
+
+oneExpiryOptionDataspy <- 
+  spyOptionCross %>% 
   filter(expiryDate==selectedExpiry)
 
 ```
@@ -664,7 +683,7 @@ spotSPEmini <- spEminiCross[1,'19/06/2020']
 
 ```{r 2.1 dividend yield}
 
-impliedDividend <- impliedR-log(impliedSPXF/spotUnderlying)/ttm
+impliedDividend <- impliedR-log(impliedSPYF/spotUnderlying)/ttm
 ```
 
 ###### implied index level
@@ -734,7 +753,7 @@ putOptionData %>%
 
 ##### 3.1.1 Stock with continuous dividend yield
 ###before running the loop, using fake number to assign values first.
-```{r 3.1.1 EUR-CALL load in parameter}
+```{r 3.1.1 EUR/AMRI-CALL load in parameter}
 
 nSteps=2
 interestRate=0.05
@@ -745,7 +764,7 @@ spotUnderlying=810
 strike=800
 call_put=1 #1 for call option, -1 for put option
 
-americanOption=FALSE
+americanOption=TRUE
 displayBT=TRUE
 
 deltaT=ttm/nSteps
@@ -827,7 +846,7 @@ $p=\frac{a-d}{u-d}$
 
 $a=e^{r\bigtriangleup t }$
 
-```{r 3.1.2 EUR-CALL load parameters}
+```{r 3.1.2 EUR/AMRI-CALL load parameters}
 nSteps=1000
 interestRate=0.05
 dividendYield=0.02
@@ -837,7 +856,7 @@ spotUnderlying=810
 strike=800
 call_put=1 #1 for call option, -1 for put option
 
-americanOption=FALSE
+americanOption=TRUE
 
 displayBT=FALSE
 

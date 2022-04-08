@@ -92,7 +92,7 @@ lmsample <-
 
 
 d=as.Date.numeric(m)
-print(paste('for SPX expiry in',d,'we have R=',impliedR,'and Dividend=  ',impliedDividend))
+print(paste('SPX expires:',d,'R:',impliedR,'Dividend:  ',impliedDividend))
 
 
 
